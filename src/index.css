@@ -1,0 +1,199 @@
+@import url('https://fonts.googleapis.com/css2?family=Readex+Pro:wght@300;400;500;600;700&family=Tajawal:wght@300;400;500;700&family=Cairo:wght@300;400;500;600;700&display=swap');
+@import "tailwindcss";
+
+html, body, #root {
+  background-color: #0d1117 !important;
+  color-scheme: dark;
+}
+
+body {
+  font-family: 'Cairo', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+::-webkit-scrollbar {
+  display: none;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+.animate-float {
+  animation: float 4s ease-in-out infinite;
+}
+
+@keyframes marquee {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(50%);
+  }
+}
+
+.animate-marquee {
+  display: flex;
+  width: max-content;
+  animation: marquee 20s linear infinite;
+  will-change: transform;
+}
+
+.animate-marquee:hover,
+.animate-marquee:active {
+  animation-play-state: paused;
+}
+
+/* Smooth gradient mask for ticker container edges */
+.ticker-mask {
+  mask-image: linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%);
+}
+
+@keyframes shake {
+  10%, 90% {
+    transform: translate3d(-1px, 0, 0);
+  }
+  20%, 80% {
+    transform: translate3d(2px, 0, 0);
+  }
+  30%, 50%, 70% {
+    transform: translate3d(-4px, 0, 0);
+  }
+  40%, 60% {
+    transform: translate3d(4px, 0, 0);
+  }
+}
+
+.animate-shake {
+  animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+}
+
+@supports (padding: env(safe-area-inset-top)) {
+  .safe-top-bar {
+    padding-top: max(0.625rem, env(safe-area-inset-top));
+  }
+  .safe-container {
+    padding-top: max(5rem, calc(4rem + env(safe-area-inset-top)));
+    padding-bottom: max(6rem, calc(2rem + env(safe-area-inset-bottom)));
+  }
+  .safe-whatsapp-pos {
+    bottom: max(1.25rem, calc(0.75rem + env(safe-area-inset-bottom)));
+    left: max(1.25rem, calc(0.75rem + env(safe-area-inset-left)));
+  }
+}
+
+/* Mobile Performance Optimizations */
+@media (max-width: 768px) {
+  * {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+  
+  /* Strip heavy box shadows and replace with simpler borders/backgrounds */
+  .shadow-2xl, .shadow-xl, .shadow-lg, [class*="shadow-["] {
+    box-shadow: none !important;
+  }
+
+  /* Replace heavy glass backgrounds with solid semi-transparent ones for performance */
+  [class*="bg-[#050507]/60"], [class*="bg-[#0B0E17]/80"], [class*="bg-[#0A0E1A]/80"], [class*="bg-[#0B0E17]/90"] {
+    background-color: rgba(11, 14, 23, 0.95) !important;
+  }
+
+  /* Disable continuous pulse and float animations */
+  .animate-pulse, .animate-ping, .animate-float {
+    animation: none !important;
+  }
+
+  /* Hardware acceleration for common animated elements */
+  .will-change-transform, button, .modal, .card, form {
+    will-change: transform, opacity;
+    transform: translate3d(0, 0, 0);
+    backface-visibility: hidden;
+  }
+}
+
+/* GPU Hardware Acceleration & PS-Style Fast Motion Utilities */
+:root {
+  --ps-ease: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* GPU composite layer promotion for animated elements */
+.gpu-accelerated,
+button,
+[role="button"],
+.modal-content,
+.card-animated {
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+}
+
+/* Zero-lag, GPU-accelerated input field focus & border transitions */
+input, textarea, select {
+  transition: border-color 150ms cubic-bezier(0.16, 1, 0.3, 1),
+              background-color 150ms cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 150ms cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+/* Snappy 150ms-200ms interactive element transitions */
+.ps-interactive {
+  transition: transform 150ms cubic-bezier(0.16, 1, 0.3, 1),
+              opacity 150ms cubic-bezier(0.16, 1, 0.3, 1),
+              background-color 150ms cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform, opacity;
+}
+
+
+/* Apple-Style Ambient Glow GPU-Accelerated Animations */
+@keyframes ambient-float-1 {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) scale3d(1, 1, 1);
+  }
+  50% {
+    transform: translate3d(28px, -22px, 0) scale3d(1.12, 1.08, 1);
+  }
+}
+
+@keyframes ambient-float-2 {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) scale3d(1, 1, 1);
+  }
+  50% {
+    transform: translate3d(-32px, 28px, 0) scale3d(1.15, 0.92, 1);
+  }
+}
+
+@keyframes ambient-float-3 {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) scale3d(1, 1, 1);
+  }
+  50% {
+    transform: translate3d(22px, 32px, 0) scale3d(0.92, 1.12, 1);
+  }
+}
+
+.animate-ambient-1 {
+  will-change: transform;
+  animation: ambient-float-1 18s ease-in-out infinite;
+}
+
+.animate-ambient-2 {
+  will-change: transform;
+  animation: ambient-float-2 22s ease-in-out infinite;
+}
+
+.animate-ambient-3 {
+  will-change: transform;
+  animation: ambient-float-3 16s ease-in-out infinite;
+}
