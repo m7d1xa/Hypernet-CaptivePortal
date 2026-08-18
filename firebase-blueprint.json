@@ -1,0 +1,28 @@
+{
+  "collections": [
+    {
+      "name": "users",
+      "description": "Stores user profiles including their region.",
+      "fields": [
+        { "name": "uid", "type": "string", "description": "Firebase Auth UID" },
+        { "name": "email", "type": "string", "description": "User email address" },
+        { "name": "displayName", "type": "string", "description": "User display name" },
+        { "name": "photoURL", "type": "string", "description": "User profile photo URL" },
+        { "name": "region", "type": "string", "description": "Selected region" },
+        { "name": "createdAt", "type": "timestamp", "description": "Timestamp when user was created" },
+        { "name": "lastLogin", "type": "timestamp", "description": "Timestamp of last login" }
+      ],
+      "rules": "allow read, write: if request.auth != null && request.auth.uid == resource.data.uid;"
+    },
+    {
+      "name": "login_logs",
+      "description": "Stores login history.",
+      "fields": [
+        { "name": "uid", "type": "string", "description": "Firebase Auth UID" },
+        { "name": "region", "type": "string", "description": "Region logged into" },
+        { "name": "timestamp", "type": "timestamp", "description": "Login timestamp" }
+      ],
+      "rules": "allow read: if request.auth != null && request.auth.uid == resource.data.uid; allow write: if request.auth != null;"
+    }
+  ]
+}

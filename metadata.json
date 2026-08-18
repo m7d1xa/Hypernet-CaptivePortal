@@ -1,0 +1,8 @@
+{
+  "name": "Remix Wi-Fi Captive Portal",
+  "description": "A stunning, ultra-modern Wi-Fi Captive Portal login/registration web page with region selector.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

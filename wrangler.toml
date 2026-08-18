@@ -1,0 +1,8 @@
+name = "hypernet"
+main = "server.ts"
+compatibility_date = "2024-01-01"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "hypernet-db"
+database_id = "5d48b10c-1b2c-4876-b23c-629954fcfba2"

@@ -1,0 +1,49 @@
+
+> react-example@0.0.0 lint
+> tsc --noEmit
+
+src/App.tsx(2029,15): error TS2304: Cannot find name 'parsed'.
+src/App.tsx(2034,13): error TS2304: Cannot find name 'parsed'.
+src/App.tsx(2038,54): error TS2304: Cannot find name 'parsed'.
+src/App.tsx(2050,31): error TS2304: Cannot find name 'newItems'.
+src/App.tsx(2055,26): error TS2304: Cannot find name 'parsed'.
+src/App.tsx(2057,40): error TS2304: Cannot find name 'parsed'.
+src/App.tsx(2161,9): error TS2304: Cannot find name 'newItems'.
+src/App.tsx(2172,9): error TS2304: Cannot find name 'newItems'.
+src/App.tsx(2178,31): error TS2304: Cannot find name 'newItems'.
+src/App.tsx(2184,27): error TS2304: Cannot find name 'newItems'.
+src/App.tsx(2290,13): error TS2304: Cannot find name 'apiCards'.
+src/App.tsx(2311,13): error TS2304: Cannot find name 'apiCards'.
+src/App.tsx(2312,11): error TS2304: Cannot find name 'assigned'.
+src/App.tsx(2314,23): error TS2304: Cannot find name 'apiCards'.
+src/App.tsx(2314,53): error TS2304: Cannot find name 'apiCards'.
+src/App.tsx(2315,23): error TS2304: Cannot find name 'apiCards'.
+src/App.tsx(2315,53): error TS2304: Cannot find name 'apiCards'.
+src/App.tsx(2319,29): error TS2304: Cannot find name 'updatedInventory'.
+src/App.tsx(2323,13): error TS2304: Cannot find name 'assigned'.
+src/App.tsx(2332,13): error TS2304: Cannot find name 'assigned'.
+src/App.tsx(2342,25): error TS2304: Cannot find name 'updatedInventory'.
+src/App.tsx(2343,66): error TS2304: Cannot find name 'updatedInventory'.
+src/App.tsx(2345,11): error TS2304: Cannot find name 'assigned'.
+src/App.tsx(2348,18): error TS2304: Cannot find name 'currentSaved'.
+src/App.tsx(2351,30): error TS2304: Cannot find name 'assigned'.
+src/App.tsx(2368,67): error TS2304: Cannot find name 'combined'.
+src/App.tsx(2369,69): error TS2304: Cannot find name 'combined'.
+src/App.tsx(2374,16): error TS2304: Cannot find name 'assigned'.
+src/App.tsx(2379,29): error TS2304: Cannot find name 'assigned'.
+src/App.tsx(2459,21): error TS2304: Cannot find name 'chosenCamp'.
+src/App.tsx(2460,19): error TS2304: Cannot find name 'chosenCamp'.
+src/App.tsx(2471,17): error TS2304: Cannot find name 'chosenCamp'.
+src/App.tsx(2479,17): error TS2304: Cannot find name 'chosenCamp'.
+src/App.tsx(2480,15): error TS2304: Cannot find name 'chosenCamp'.
+src/App.tsx(2488,11): error TS2304: Cannot find name 'updatedList'.
+src/App.tsx(2494,19): error TS2304: Cannot find name 'chosenCamp'.
+src/App.tsx(2495,21): error TS2304: Cannot find name 'chosenCamp'.
+src/App.tsx(2505,19): error TS2304: Cannot find name 'chosenCamp'.
+src/App.tsx(2506,21): error TS2304: Cannot find name 'chosenCamp'.
+src/App.tsx(2510,65): error TS2304: Cannot find name 'updatedList'.
+src/App.tsx(2511,16): error TS2304: Cannot find name 'updatedList'.
+src/App.tsx(5136,31): error TS2304: Cannot find name 'file'.
+src/App.tsx(5136,60): error TS2304: Cannot find name 'file'.
+src/App.tsx(5151,35): error TS2304: Cannot find name 'f'.
+src/App.tsx(5151,61): error TS2304: Cannot find name 'f'.
