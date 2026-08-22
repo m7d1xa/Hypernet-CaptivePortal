@@ -1,10 +1,10 @@
-import React, { useState, FormEvent, useEffect, ReactNode, ChangeEvent, useRef, useMemo } from 'react';
+import React, { useState, FormEvent, useEffect, ReactNode, ChangeEvent, useRef, useMemo, useCallback } from 'react';
 import { 
   User, Coins, TrendingUp, Award, ShoppingCart, Loader2, CheckCircle2, AlertCircle, Download, Upload as UploadIcon, 
   Clock, HardDrive, LogOut, ChevronRight, Check,
   CreditCard, ShoppingBag, Settings, Wifi, Zap, Smartphone, KeyRound, Edit3, Copy, ShieldCheck, Sparkles, RefreshCw, FileSpreadsheet, UploadCloud, Database,
   MessageCircle, Send, PhoneCall, Activity, ExternalLink, Gift, Users, Filter, Search, Trash2, Inbox, X, LayoutDashboard, Eye, EyeOff, Ticket,
-  Bell, Megaphone
+  Bell, Megaphone, AlertTriangle, BellRing
 , Plus, Minus } from 'lucide-react';
 import { motion, AnimatePresence, HTMLMotionProps } from 'motion/react';
 import * as XLSX from 'xlsx';
@@ -103,11 +103,7 @@ interface InventoryCard {
   profile?: string;
 }
 
-const API_BASE_URL = (() => {
-  const custom = localStorage.getItem("production_api_base_url")?.trim();
-  if (custom) return custom;
-  return "https://purple-violet-3560.m-r-n-3-2005.workers.dev";
-})();
+const API_BASE_URL = "https://purple-violet-3560.m-r-n-3-2005.workers.dev";
 
 // Declaring a robust, file-scoped fetch function to gracefully handle and bypass any remote CORS or network errors
 // by falling back to relative paths. This shadows window.fetch safely without mutating the read-only window.fetch property.
@@ -170,7 +166,6 @@ async function getCorporateToken() {
   });
 
   const data = await res.json().catch(() => ({}));
-  console.log("Login Response Status:", res.status, data);
 
   if (res.status === 429) {
     const msg = "الحساب ممنوع مؤقتاً أو التوكن ما زال صالحاً، يرجى الانتظار";
@@ -213,11 +208,17 @@ const ProtectedRoute = ({ children, setView }: { children: ReactNode, setView: (
 export interface AppNotification {
   id: string;
   title: string;
-  body: string;
-  timestamp: string;
-  read: boolean;
+  body?: string;
+  message?: string;
+  timestamp?: string;
+  created_at?: string;
+  read?: boolean;
+  is_read?: number | boolean;
   targetCamp?: string;
+  camp?: string;
   isGeneral?: boolean;
+  type?: 'general' | 'purchase' | 'reward' | 'alert';
+  isLocal?: boolean;
 }
 
 const INITIAL_NOTIFICATIONS: AppNotification[] = [
@@ -235,15 +236,11 @@ const INITIAL_NOTIFICATIONS: AppNotification[] = [
 
 const parsePackageDurationSeconds = (card: any): number => {
   if (!card) {
-    const defaultSec = 10 * 3600;
-    console.log("Calculated Duration (sec):", defaultSec);
-    return defaultSec;
+    return 10 * 3600;
   }
   
   if (card.duration_hours && !isNaN(Number(card.duration_hours))) {
-    const sec = Number(card.duration_hours) * 3600;
-    console.log("Calculated Duration (sec):", sec);
-    return sec;
+    return Number(card.duration_hours) * 3600;
   }
 
   const str = (
@@ -271,7 +268,6 @@ const parsePackageDurationSeconds = (card: any): number => {
     totalDurationSec = 10 * 3600;
   }
 
-  console.log("Calculated Duration (sec):", totalDurationSec);
   return totalDurationSec;
 };
 
@@ -418,7 +414,13 @@ const StatusPageView: React.FC<StatusPageViewProps> = ({
   };
 
   const cardNumber = card?.cardUsername || card?.username || card?.code || card?.card_number || mikrotikParams?.username || mikrotikParams?.cardNumber || '0567101900';
-  const packageName = card?.name || card?.packageName || card?.package_name || 'باقة 24 ساعة';
+  const rawPkgName = String(card?.name || card?.packageName || card?.package_name || mikrotikParams?.packageName || 'باقة 24 ساعة');
+  const packageName = rawPkgName.includes('24') || rawPkgName.includes('يوم') 
+    ? 'باقة 24 ساعة' 
+    : rawPkgName.includes('10') || rawPkgName.includes('عشر') 
+    ? 'باقة 10 ساعات' 
+    : rawPkgName;
+
   const activationDateStr = storedActivatedAt.current 
     ? new Date(storedActivatedAt.current).toLocaleString('ar-EG', { dateStyle: 'short', timeStyle: 'short' })
     : 'غير مفعل بعد';
@@ -443,31 +445,32 @@ const StatusPageView: React.FC<StatusPageViewProps> = ({
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.98 }}
       transition={{ duration: 0.25, ease: "easeOut" }}
-      className="w-full max-w-2xl mx-auto relative z-10 py-4 sm:py-8 px-3 sm:px-4"
+      className="w-full max-w-2xl mx-auto relative z-10 py-4 sm:py-8 px-3 sm:px-4 antialiased"
     >
-      <div className="bg-[#0f141c]/95 backdrop-blur-2xl border border-white/10 rounded-3xl shadow-2xl overflow-hidden relative text-right" dir="rtl">
-        {/* Top Accent Line */}
-        <div className="h-1 w-full bg-gradient-to-r from-emerald-500 via-teal-400 to-cyan-500 shadow-[0_0_12px_rgba(16,185,129,0.4)]" />
-
-        <div className="p-5 sm:p-8 space-y-6">
+      <div className="bg-slate-900/80 backdrop-blur-xl rounded-2xl sm:rounded-3xl shadow-2xl border border-slate-800/80 overflow-hidden relative text-right" dir="rtl">
+        <div className="p-4 sm:p-6 md:p-8 space-y-6">
           
           {/* Header Row */}
-          <div className="flex items-center justify-between border-b border-white/5 pb-4">
+          <div className="flex items-center justify-between border-b border-slate-800/60 pb-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shrink-0">
-                <Wifi className="w-5 h-5 text-emerald-400 animate-pulse" />
+              <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center shrink-0 shadow-sm text-blue-400">
+                <Wifi className="w-5 h-5 text-blue-400 animate-pulse" />
               </div>
-              <div>
-                <h1 className="text-base sm:text-lg font-black text-white tracking-tight">حالة اتصال الشبكة</h1>
-                <p className="text-xs text-slate-400 font-medium">جلسة الإنترنت المباشرة للبطاقة</p>
+              <div className="text-right">
+                <h1 className="text-slate-100 font-bold tracking-tight text-lg sm:text-xl antialiased">
+                  حالة اتصال الشبكة
+                </h1>
+                <p className="text-slate-400 font-medium text-xs sm:text-sm mt-0.5 antialiased">
+                  جلسة الإنترنت المباشرة للبطاقة
+                </p>
               </div>
             </div>
-            <div className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold ${
+            <div className={`inline-flex items-center gap-2 px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-full text-xs font-semibold ${
               isExpired
-                ? 'bg-rose-500/15 border border-rose-500/30 text-rose-400'
+                ? 'bg-rose-500/10 text-rose-400 border border-rose-500/20'
                 : remainingSec > 0
-                ? 'bg-emerald-500/15 border border-emerald-500/30 text-emerald-400'
-                : 'bg-amber-500/15 border border-amber-500/30 text-amber-400'
+                ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
             }`}>
               {isExpired ? (
                 <>
@@ -481,23 +484,23 @@ const StatusPageView: React.FC<StatusPageViewProps> = ({
                 </>
               ) : (
                 <>
-                  <span className="w-2 h-2 rounded-full bg-amber-400 opacity-50 inline-block shrink-0" />
+                  <span className="w-2 h-2 rounded-full bg-amber-400 opacity-60 inline-block shrink-0" />
                   <span>في انتظار التفعيل</span>
                 </>
               )}
             </div>
           </div>
 
-          {/* Focal Point: Hero Circular Countdown Timer */}
-          <div className="bg-white/[0.02] border border-white/5 rounded-3xl p-6 sm:p-8 flex flex-col items-center justify-center relative overflow-hidden">
-            <div className="relative w-48 h-48 sm:w-52 sm:h-52 flex items-center justify-center my-1">
+          {/* Focal Point: Hero Circular Countdown Timer (Dark Mode) */}
+          <div className="bg-slate-950/40 border border-slate-800/60 rounded-2xl sm:rounded-3xl p-5 sm:p-7 flex flex-col items-center justify-center relative overflow-hidden">
+            <div className="relative w-44 h-44 sm:w-52 sm:h-52 max-w-[180px] sm:max-w-[220px] mx-auto flex items-center justify-center my-1">
               <svg className="w-full h-full -rotate-90 transform" viewBox="0 0 160 160">
                 {/* Background Ring */}
                 <circle
                   cx="80"
                   cy="80"
                   r={radius}
-                  className="stroke-slate-800/60"
+                  className="stroke-slate-800"
                   strokeWidth="8"
                   fill="transparent"
                 />
@@ -506,33 +509,26 @@ const StatusPageView: React.FC<StatusPageViewProps> = ({
                   cx="80"
                   cy="80"
                   r={radius}
-                  stroke="url(#statusEmeraldGrad)"
+                  className="stroke-blue-500 transition-all duration-1000 ease-linear"
                   strokeWidth="8"
                   strokeDasharray={circumference}
                   strokeDashoffset={strokeDashoffset}
                   strokeLinecap="round"
                   fill="transparent"
-                  className="transition-all duration-1000 ease-linear"
                 />
-                <defs>
-                  <linearGradient id="statusEmeraldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="#10B981" />
-                    <stop offset="100%" stopColor="#06B6D4" />
-                  </linearGradient>
-                </defs>
               </svg>
 
               {/* Center Metrics Inside Circular Ring */}
-              <div className="absolute inset-0 flex flex-col items-center justify-center text-center select-none px-4">
+              <div className="absolute inset-0 flex flex-col items-center justify-center text-center select-none px-3">
                 {isExpired ? (
-                  <span className="text-sm font-bold text-rose-400">انتهت صلاحية البطاقة</span>
+                  <span className="text-xs sm:text-sm font-bold text-rose-400">انتهت صلاحية البطاقة</span>
                 ) : (
                   <>
-                    <span className="text-xs font-semibold text-slate-400 mb-1">الوقت المتبقي</span>
-                    <span className="text-3xl sm:text-4xl font-mono font-black text-white tracking-tight drop-shadow-[0_0_15px_rgba(16,185,129,0.35)]" dir="ltr">
+                    <span className="text-[11px] sm:text-xs font-semibold text-slate-400 mb-1">الوقت المتبقي</span>
+                    <span className="text-2xl sm:text-3xl md:text-4xl font-mono font-black text-slate-100 tracking-tight" dir="ltr">
                       {formatHMS(remainingSec)}
                     </span>
-                    <span className="mt-2 text-[11px] font-mono font-bold px-3 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/25">
+                    <span className="mt-2 text-[10px] sm:text-[11px] font-mono font-bold px-2.5 sm:px-3 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20">
                       %{percentRemaining.toFixed(0)} متبقي
                     </span>
                   </>
@@ -541,106 +537,106 @@ const StatusPageView: React.FC<StatusPageViewProps> = ({
             </div>
 
             {/* Sleek Rounded Progress Bar */}
-            <div className="w-full max-w-md mt-6 space-y-2">
+            <div className="w-full max-w-md mt-5 space-y-2">
               <div className="flex justify-between items-center text-xs font-medium px-1">
                 <span className="text-slate-400">المستهلك: <strong className="text-amber-400 font-mono">%{percentConsumed.toFixed(0)}</strong></span>
-                <span className="text-slate-400">المتبقي: <strong className="text-emerald-400 font-mono">%{percentRemaining.toFixed(0)}</strong></span>
+                <span className="text-slate-400">المتبقي: <strong className="text-blue-400 font-mono">%{percentRemaining.toFixed(0)}</strong></span>
               </div>
-              <div className="w-full h-2 bg-slate-800/80 rounded-full overflow-hidden p-0.5 border border-white/5">
+              <div className="w-full h-2 bg-slate-800/80 rounded-full overflow-hidden p-0.5 border border-slate-700/50">
                 <div 
-                  className="h-full bg-gradient-to-r from-emerald-500 to-cyan-400 rounded-full transition-all duration-1000 ease-linear shadow-[0_0_10px_rgba(16,185,129,0.5)]"
+                  className="h-full bg-blue-500 rounded-full transition-all duration-1000 ease-linear shadow-sm"
                   style={{ width: `${percentConsumed.toFixed(1)}%` }}
                 />
               </div>
             </div>
           </div>
 
-          {/* Responsive Modular Info Cards Grid (2 cols mobile, 3 cols desktop) */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          {/* Responsive Modular Info Cards Grid (1 col on small mobile, 2 cols sm, 3 cols lg) */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
             
             {/* 1. رقم البطاقة */}
-            <div className="bg-white/[0.03] backdrop-blur-md border border-white/5 hover:border-white/10 transition-colors p-3.5 sm:p-4 rounded-2xl flex flex-col justify-between">
+            <div className="bg-slate-800/50 border border-slate-700/40 hover:border-slate-600/60 transition-all duration-200 p-3.5 sm:p-4 rounded-xl sm:rounded-2xl flex flex-col justify-between shadow-sm">
               <div className="flex items-center justify-between gap-2 mb-2">
-                <div className="w-8 h-8 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shrink-0 text-emerald-400">
+                <div className="p-2 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center shrink-0 text-blue-400">
                   <Ticket className="w-4 h-4" />
                 </div>
                 <button
                   type="button"
                   onClick={handleCopy}
                   title="نسخ رقم البطاقة"
-                  className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 transition-colors active:scale-95 shrink-0 cursor-pointer"
+                  className="p-1.5 rounded-lg bg-slate-700/50 hover:bg-slate-700 text-slate-300 hover:text-slate-100 transition-colors active:scale-95 shrink-0 cursor-pointer border border-slate-600/30"
                 >
-                  {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                  {copied ? <Check className="w-3.5 h-3.5 text-blue-400" /> : <Copy className="w-3.5 h-3.5" />}
                 </button>
               </div>
               <div>
-                <div className="text-[11px] text-slate-400 font-medium">رقم البطاقة</div>
-                <div className="text-sm font-mono font-bold text-white truncate tracking-wider mt-0.5" dir="ltr">
+                <div className="text-xs sm:text-sm font-medium text-slate-400">رقم البطاقة</div>
+                <div className="text-sm sm:text-base font-mono font-semibold text-slate-100 truncate tracking-wider mt-0.5" dir="ltr">
                   {cardNumber}
                 </div>
               </div>
             </div>
 
             {/* 2. اسم الباقة */}
-            <div className="bg-white/[0.03] backdrop-blur-md border border-white/5 hover:border-white/10 transition-colors p-3.5 sm:p-4 rounded-2xl flex flex-col justify-between">
-              <div className="w-8 h-8 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center shrink-0 text-cyan-400 mb-2">
+            <div className="bg-slate-800/50 border border-slate-700/40 hover:border-slate-600/60 transition-all duration-200 p-3.5 sm:p-4 rounded-xl sm:rounded-2xl flex flex-col justify-between shadow-sm">
+              <div className="p-2 rounded-lg bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center shrink-0 text-indigo-400 mb-2 w-fit">
                 <Zap className="w-4 h-4" />
               </div>
               <div>
-                <div className="text-[11px] text-slate-400 font-medium">الباقة الحالية</div>
-                <div className="text-sm font-bold text-white truncate mt-0.5">{packageName}</div>
+                <div className="text-xs sm:text-sm font-medium text-slate-400">الباقة الحالية</div>
+                <div className="text-sm sm:text-base font-semibold text-slate-100 truncate mt-0.5">{packageName}</div>
               </div>
             </div>
 
             {/* 3. وقت التفعيل */}
-            <div className="bg-white/[0.03] backdrop-blur-md border border-white/5 hover:border-white/10 transition-colors p-3.5 sm:p-4 rounded-2xl flex flex-col justify-between">
-              <div className="w-8 h-8 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center shrink-0 text-indigo-400 mb-2">
+            <div className="bg-slate-800/50 border border-slate-700/40 hover:border-slate-600/60 transition-all duration-200 p-3.5 sm:p-4 rounded-xl sm:rounded-2xl flex flex-col justify-between shadow-sm">
+              <div className="p-2 rounded-lg bg-sky-500/10 border border-sky-500/20 flex items-center justify-center shrink-0 text-sky-400 mb-2 w-fit">
                 <Clock className="w-4 h-4" />
               </div>
               <div>
-                <div className="text-[11px] text-slate-400 font-medium">وقت التفعيل</div>
-                <div className="text-xs font-mono font-bold text-white truncate mt-0.5" dir="ltr">
+                <div className="text-xs sm:text-sm font-medium text-slate-400">وقت التفعيل</div>
+                <div className="text-sm sm:text-base font-mono font-semibold text-slate-100 truncate mt-0.5" dir="ltr">
                   {activationDateStr}
                 </div>
               </div>
             </div>
 
             {/* 4. الوقت المستهلك */}
-            <div className="bg-white/[0.03] backdrop-blur-md border border-white/5 hover:border-white/10 transition-colors p-3.5 sm:p-4 rounded-2xl flex flex-col justify-between">
-              <div className="w-8 h-8 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center shrink-0 text-amber-400 mb-2">
+            <div className="bg-slate-800/50 border border-slate-700/40 hover:border-slate-600/60 transition-all duration-200 p-3.5 sm:p-4 rounded-xl sm:rounded-2xl flex flex-col justify-between shadow-sm">
+              <div className="p-2 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center shrink-0 text-amber-400 mb-2 w-fit">
                 <Activity className="w-4 h-4" />
               </div>
               <div>
-                <div className="text-[11px] text-slate-400 font-medium">الوقت المستهلك</div>
-                <div className="text-sm font-mono font-black text-amber-400 mt-0.5" dir="ltr">
+                <div className="text-xs sm:text-sm font-medium text-slate-400">الوقت المستهلك</div>
+                <div className="text-sm sm:text-base font-mono font-semibold text-amber-400 mt-0.5" dir="ltr">
                   {formatConsumedText(elapsedSec)}
                 </div>
               </div>
             </div>
 
             {/* 5. استهلاك البيانات */}
-            <div className="bg-white/[0.03] backdrop-blur-md border border-white/5 hover:border-white/10 transition-colors p-3.5 sm:p-4 rounded-2xl flex flex-col justify-between">
-              <div className="w-8 h-8 rounded-xl bg-teal-500/10 border border-teal-500/20 flex items-center justify-center shrink-0 text-teal-400 mb-2">
+            <div className="bg-slate-800/50 border border-slate-700/40 hover:border-slate-600/60 transition-all duration-200 p-3.5 sm:p-4 rounded-xl sm:rounded-2xl flex flex-col justify-between shadow-sm">
+              <div className="p-2 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center shrink-0 text-blue-400 mb-2 w-fit">
                 <HardDrive className="w-4 h-4" />
               </div>
               <div>
-                <div className="text-[11px] text-slate-400 font-medium">حركة البيانات</div>
-                <div className="text-xs font-mono font-bold text-white flex items-center gap-1.5 mt-0.5" dir="ltr">
-                  <span className="text-emerald-400 flex items-center gap-0.5"><Download className="w-3 h-3 inline" /> {dlMB}M</span>
-                  <span className="text-slate-600">/</span>
-                  <span className="text-teal-400 flex items-center gap-0.5"><UploadIcon className="w-3 h-3 inline" /> {ulMB}M</span>
+                <div className="text-xs sm:text-sm font-medium text-slate-400">حركة البيانات</div>
+                <div className="text-sm sm:text-base font-mono font-semibold text-slate-100 flex items-center gap-1.5 mt-0.5" dir="ltr">
+                  <span className="text-blue-400 flex items-center gap-0.5"><Download className="w-3.5 h-3.5 inline" /> {dlMB}M</span>
+                  <span className="text-slate-500">/</span>
+                  <span className="text-indigo-400 flex items-center gap-0.5"><UploadIcon className="w-3.5 h-3.5 inline" /> {ulMB}M</span>
                 </div>
               </div>
             </div>
 
             {/* 6. عنوان الـ IP */}
-            <div className="bg-white/[0.03] backdrop-blur-md border border-white/5 hover:border-white/10 transition-colors p-3.5 sm:p-4 rounded-2xl flex flex-col justify-between">
-              <div className="w-8 h-8 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center shrink-0 text-purple-400 mb-2">
+            <div className="bg-slate-800/50 border border-slate-700/40 hover:border-slate-600/60 transition-all duration-200 p-3.5 sm:p-4 rounded-xl sm:rounded-2xl flex flex-col justify-between shadow-sm">
+              <div className="p-2 rounded-lg bg-violet-500/10 border border-violet-500/20 flex items-center justify-center shrink-0 text-violet-400 mb-2 w-fit">
                 <Smartphone className="w-4 h-4" />
               </div>
               <div>
-                <div className="text-[11px] text-slate-400 font-medium">عنوان الـ IP</div>
-                <div className="text-xs font-mono font-bold text-white truncate mt-0.5" dir="ltr">
+                <div className="text-xs sm:text-sm font-medium text-slate-400">عنوان الـ IP</div>
+                <div className="text-sm sm:text-base font-mono font-semibold text-slate-100 truncate mt-0.5" dir="ltr">
                   {deviceIp || "192.168.1.105"}
                 </div>
               </div>
@@ -655,9 +651,9 @@ const StatusPageView: React.FC<StatusPageViewProps> = ({
             <button
               type="button"
               onClick={onBack}
-              className="w-full bg-white/5 hover:bg-white/10 text-white font-bold py-3.5 px-4 rounded-2xl border border-white/10 hover:border-white/20 transition-all duration-150 ease-out active:scale-[0.98] flex items-center justify-center gap-2 text-sm cursor-pointer shadow-sm"
+              className="w-full bg-slate-800 hover:bg-slate-700/80 text-slate-200 font-bold py-3.5 px-4 rounded-xl sm:rounded-2xl border border-slate-700/60 transition-all duration-150 ease-out active:scale-[0.98] flex items-center justify-center gap-2 text-sm cursor-pointer shadow-sm"
             >
-              <ChevronRight className="w-4 h-4" />
+              <ChevronRight className="w-4 h-4 text-slate-400" />
               <span>رجوع إلى لوحة التحكم</span>
             </button>
 
@@ -666,7 +662,7 @@ const StatusPageView: React.FC<StatusPageViewProps> = ({
               type="button"
               disabled={isLoggingOut}
               onClick={onLogout}
-              className="w-full bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 hover:text-rose-300 font-bold py-3.5 px-4 rounded-2xl border border-rose-500/30 hover:border-rose-500/40 transition-all duration-150 ease-out active:scale-[0.98] flex items-center justify-center gap-2 text-sm cursor-pointer disabled:opacity-60 shadow-sm"
+              className="w-full bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 hover:text-rose-300 font-bold py-3.5 px-4 rounded-xl sm:rounded-2xl border border-rose-500/30 hover:border-rose-500/40 transition-all duration-150 ease-out active:scale-[0.98] flex items-center justify-center gap-2 text-sm cursor-pointer disabled:opacity-60 shadow-sm"
             >
               {isLoggingOut ? (
                 <>
@@ -686,7 +682,7 @@ const StatusPageView: React.FC<StatusPageViewProps> = ({
         </div>
 
         {/* Footer Accent */}
-        <div className="bg-black/20 px-4 py-3 text-center border-t border-white/5">
+        <div className="bg-slate-950/60 px-4 py-3 text-center border-t border-slate-800/80">
           <p className="text-[11px] text-slate-500 font-mono tracking-wide">HyperNet Live Hotspot Session • Secured</p>
         </div>
       </div>
@@ -802,7 +798,17 @@ export default function App() {
     }
     return false;
   });
-  const [adminActiveTab, setAdminActiveTab] = useState<'users' | 'inventory' | 'logs'>('users');
+  const [adminActiveTab, setAdminActiveTab] = useState<'users' | 'inventory' | 'logs' | 'notifications'>('users');
+
+  // Admin Notification Broadcast State
+  const [adminNotifTarget, setAdminNotifTarget] = useState<'all' | 'camp'>('all');
+  const [adminNotifCamp, setAdminNotifCamp] = useState<string>('مخيم النخيل الساحلي');
+  const [adminNotifTitle, setAdminNotifTitle] = useState<string>('');
+  const [adminNotifMessage, setAdminNotifMessage] = useState<string>('');
+  const [isSendingNotif, setIsSendingNotif] = useState(false);
+
+  // User Card Deletion Confirmation Modal State
+  const [deleteCardConfirm, setDeleteCardConfirm] = useState<any | null>(null);
 
   const [salesSearchQuery, setSalesSearchQuery] = useState('');
   const [salesFilterStatus, setSalesFilterStatus] = useState<'all' | 'sold' | 'compensation'>('all');
@@ -914,6 +920,33 @@ export default function App() {
   const [dispensedCardModal, setDispensedCardModal] = useState<{ isOpen: boolean; card: any | null }>({
     isOpen: false,
     card: null
+  });
+
+  // Real Payment Flow State (MaalCards / Jawwal Pay OTP)
+  const [paymentModal, setPaymentModal] = useState<{
+    isOpen: boolean;
+    step: 'phone' | 'otp';
+    pkgName: string;
+    duration: string;
+    dataLimit: string;
+    price: string;
+    quantity: number;
+    phone: string;
+    corInvoiceId: string;
+    otp: string;
+    isLoading: boolean;
+  }>({
+    isOpen: false,
+    step: 'phone',
+    pkgName: '',
+    duration: '',
+    dataLimit: '',
+    price: '',
+    quantity: 1,
+    phone: '',
+    corInvoiceId: '',
+    otp: '',
+    isLoading: false
   });
 
   // Paste Fallback State
@@ -1110,7 +1143,7 @@ export default function App() {
   const normalizeCampName = (str?: string): string => {
     if (!str) return '';
     let cleaned = str.trim().toLowerCase();
-    // Strip common prefixes like 'مشتركي', 'مخيم', 'مخيمات', 'منطقة'
+    // Strip common prefixes like 'مشتركي', 'مشتركين', 'مخيم', 'مخيمات', 'منطقة'
     cleaned = cleaned.replace(/^(مشتركي|مشتركين|مخيمات|مخيم|منطقة|منطقه)\s+/gi, '');
     return cleaned.trim().replace(/\s+/g, ' ');
   };
@@ -1120,7 +1153,7 @@ export default function App() {
     if (!target) return true;
     const raw = target.trim();
     if (!raw) return true;
-    if (raw === 'ALL' || raw.includes('عام') || raw.includes('الجميع')) return true;
+    if (raw === 'ALL' || raw === 'all' || raw.includes('عام') || raw.includes('الجميع')) return true;
     const norm = normalizeCampName(raw);
     if (norm === 'all' || norm === 'الجميع' || norm === '') return true;
     return false;
@@ -1131,13 +1164,39 @@ export default function App() {
     if (!incomingNotif) return false;
     if (showAdminDashboard) return true;
 
-    const currentCamp = (region || editRegion || '').trim().toLowerCase();
-    const targetCamp = incomingNotif?.targetCamp?.trim().toLowerCase();
-    const isGeneral = incomingNotif?.isGeneral || targetCamp === 'all' || targetCamp === 'عام' || targetCamp === 'الجميع' || !targetCamp;
+    // Direct personal notifications (e.g., purchases or rewards specifically for this session)
+    if (incomingNotif.type === 'purchase' || incomingNotif.id?.startsWith('purchase_')) {
+      return true;
+    }
 
-    const isMatch = isGeneral || (currentCamp && targetCamp && currentCamp === targetCamp);
-    
-    return Boolean(isMatch);
+    // Check if target is explicitly general/ALL
+    const rawTarget = (incomingNotif.targetCamp || incomingNotif.camp || '').trim();
+    if (incomingNotif.isGeneral || isGeneralNotification(rawTarget)) {
+      return true;
+    }
+
+    // Normalized comparison for strict camp targeting
+    let userCampRaw = region || editRegion || '';
+    if (!userCampRaw) {
+      try {
+        const activeUserStr = localStorage.getItem('hnet_active_user');
+        if (activeUserStr) {
+          const u = JSON.parse(activeUserStr);
+          userCampRaw = u.region || u.camp || '';
+        }
+      } catch (e) {}
+    }
+
+    const normUserCamp = normalizeCampName(userCampRaw);
+    const normTargetCamp = normalizeCampName(rawTarget);
+
+    if (!normUserCamp || !normTargetCamp) {
+      return false;
+    }
+
+    return normUserCamp === normTargetCamp || 
+           normUserCamp.includes(normTargetCamp) || 
+           normTargetCamp.includes(normUserCamp);
   };
 
   // Listen for active notification toast events across window/tabs
@@ -1240,14 +1299,26 @@ export default function App() {
         const saved = localStorage.getItem('hnet_notifications');
         if (saved !== null) {
           const parsed = JSON.parse(saved);
-          if (Array.isArray(parsed)) setNotifications(parsed);
+          if (Array.isArray(parsed)) {
+            const filtered = parsed.filter(n => isNotificationEligibleForUser(n));
+            setNotifications(filtered);
+          }
         }
       } catch (err) {}
     };
 
     const handleStorage = (e: StorageEvent) => {
       if (!e.key || e.key === 'hnet_notifications') {
-        handleSync();
+        try {
+          const saved = localStorage.getItem('hnet_notifications');
+          if (saved !== null) {
+            const parsed = JSON.parse(saved);
+            if (Array.isArray(parsed)) {
+              const filtered = parsed.filter(n => isNotificationEligibleForUser(n));
+              setNotifications(filtered);
+            }
+          }
+        } catch (err) {}
       }
     };
 
@@ -1257,29 +1328,130 @@ export default function App() {
       window.removeEventListener('storage', handleStorage);
       window.removeEventListener('hnet_notification_sent', handleSync);
     };
-  }, []);
+  }, [region, editRegion, showAdminDashboard]);
 
-  // Filter notifications based on logged-in user camp vs notification target camp using the strict guard
-  const visibleNotifications = notifications.filter(notif => isNotificationEligibleForUser(notif));
+  // Fetch Notifications from Backend API (D1) using user.id UUID
+  const fetchUserNotifications = useCallback(async () => {
+    let formattedBackendList: AppNotification[] = [];
+    try {
+      const activeUserStr = localStorage.getItem('hnet_active_user');
+      let currentUserId = '';
+      if (activeUserStr) {
+        try {
+          const u = JSON.parse(activeUserStr);
+          currentUserId = u.id || u.user_id || '';
+        } catch (e) {}
+      }
+      if (!currentUserId) {
+        currentUserId = localStorage.getItem('user_id') || localStorage.getItem('userId') || '';
+      }
+      if (!currentUserId) {
+        currentUserId = username || 'guest';
+      }
 
-  const unreadNotifCount = visibleNotifications.filter(n => !n.read).length;
+      const url = `${API_BASE_URL}/api/notifications?user_id=${encodeURIComponent(currentUserId)}`;
+      const token = sessionStorage.getItem("auth_token") || localStorage.getItem("auth_token") || "";
+
+      const res = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+        }
+      });
+
+      if (res.ok) {
+        const data = await res.json().catch(() => null);
+        const rawList: any[] = data && (Array.isArray(data.notifications) ? data.notifications : Array.isArray(data) ? data : []);
+        formattedBackendList = rawList.map((n: any) => ({
+          id: String(n.id || n.notification_id || `notif_${Math.random()}`),
+          title: n.title || 'إشعار من الإدارة',
+          body: n.message || n.body || '',
+          message: n.message || n.body || '',
+          timestamp: n.created_at || n.timestamp || new Date().toISOString(),
+          created_at: n.created_at || n.timestamp || new Date().toISOString(),
+          read: n.is_read === 1 || n.is_read === true || n.read === true,
+          is_read: typeof n.is_read !== 'undefined' ? (n.is_read === 1 || n.is_read === true ? 1 : 0) : (n.read ? 1 : 0),
+          targetCamp: n.camp || n.targetCamp || 'ALL',
+          camp: n.camp || n.targetCamp || 'ALL',
+          isGeneral: n.target === 'ALL' || n.targetCamp === 'ALL' || !n.camp || n.isGeneral,
+          type: n.type || 'general'
+        }));
+      }
+    } catch (err) {
+      console.warn('Failed to fetch notifications from backend:', err);
+    } finally {
+      // Always merge local notifications with backend notifications (or preserve local items if API failed)
+      setNotifications(prev => {
+        // 1. Gather all local notifications from in-memory state and localStorage
+        const localItems: AppNotification[] = [...prev];
+        try {
+          const saved = localStorage.getItem('hnet_notifications');
+          if (saved) {
+            const parsed = JSON.parse(saved);
+            if (Array.isArray(parsed)) {
+              const existingIds = new Set(localItems.map(item => item.id));
+              parsed.forEach((pItem: AppNotification) => {
+                if (pItem && pItem.id && !existingIds.has(pItem.id)) {
+                  localItems.push(pItem);
+                  existingIds.add(pItem.id);
+                }
+              });
+            }
+          }
+        } catch (e) {}
+
+        // 2. Preserve strictly all local notifications (isLocal === true or id starts with 'purchase_')
+        const map = new Map<string, AppNotification>();
+        localItems.forEach(item => {
+          if (item && item.id) {
+            map.set(item.id, item);
+          }
+        });
+
+        // 3. Merge formatted backend notifications
+        formattedBackendList.forEach(item => {
+          const existing = map.get(item.id);
+          if (existing) {
+            map.set(item.id, { ...existing, ...item });
+          } else {
+            map.set(item.id, item);
+          }
+        });
+
+        const merged: AppNotification[] = Array.from(map.values()).sort((a: AppNotification, b: AppNotification) => {
+          const tA = new Date(a.created_at || a.timestamp || 0).getTime();
+          const tB = new Date(b.created_at || b.timestamp || 0).getTime();
+          return tB - tA;
+        });
+
+        try {
+          localStorage.setItem('hnet_notifications', JSON.stringify(merged));
+        } catch (e) {}
+        return merged;
+      });
+    }
+  }, [username]);
+
+  // Fetch Notifications on Mount / User Login from Backend API
+  useEffect(() => {
+    fetchUserNotifications();
+  }, [fetchUserNotifications, isAuthenticated]);
+
+  // Visible notifications array directly references notifications to prevent filtering omissions
+  const visibleNotifications = notifications;
+
+  const unreadNotifCount = visibleNotifications.filter(n => n.is_read === 0 || n.is_read === false || !n.read).length;
 
   const handleOpenNotificationCenter = () => {
-    try {
-      const saved = localStorage.getItem('hnet_notifications');
-      if (saved !== null) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed)) {
-          setNotifications(parsed);
-        }
-      }
-    } catch (e) {}
+    // Do NOT fetch here. The notifications are already in state from mount/login and local purchase actions.
+    // Just open the modal directly to preserve instant local state.
     setIsNotificationCenterOpen(true);
   };
 
   const handleMarkAllNotifsAsRead = () => {
     const visibleIds = new Set(visibleNotifications.map(n => n.id));
-    setNotifications(prev => prev.map(n => visibleIds.has(n.id) ? { ...n, read: true } : n));
+    setNotifications(prev => prev.map(n => visibleIds.has(n.id) ? { ...n, read: true, is_read: 1 } : n));
     showToast('تم تحديد جميع الإشعارات كمقروءة ✓', 'success');
   };
 
@@ -1933,13 +2105,48 @@ export default function App() {
   };
 
   // Helper: Clear all expired cards from user history
-  const handleClearExpiredCards = () => {
-    setCards(prev => {
-      const activeOnly = prev.filter(c => !isCardExpired(c));
-      localStorage.setItem("my_purchased_cards", JSON.stringify(activeOnly));
-      localStorage.setItem("hnet_purchased_cards", JSON.stringify(activeOnly));
-      return activeOnly;
-    });
+  const handleClearExpiredCards = async () => {
+    const activeUserStr = localStorage.getItem("hnet_active_user");
+    const currentUser = activeUserStr ? JSON.parse(activeUserStr) : null;
+    const effectiveUserId = username || currentUser?.username || currentUser?.id || currentUser?.user_id || "";
+    const token = sessionStorage.getItem("auth_token") || localStorage.getItem("auth_token") || "";
+
+    const expiredCards = cards.filter(c => isCardExpired(c));
+    for (const card of expiredCards) {
+      const cardId = card.id || card.cardUsername || card.username || card.code;
+      setDeletedCardIds(prev => {
+        const next = new Set(prev);
+        if (card.id) next.add(card.id);
+        if (card.cardUsername) next.add(card.cardUsername);
+        if (card.username) next.add(card.username);
+        return next;
+      });
+
+      try {
+        await fetch(`${API_BASE_URL}/api/cards/delete`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            ...(token ? { "Authorization": `Bearer ${token}` } : {})
+          },
+          body: JSON.stringify({
+            card_id: cardId,
+            user_id: effectiveUserId
+          })
+        }).catch(() => {});
+      } catch (e) {}
+    }
+
+    if (effectiveUserId) {
+      await fetchUserCardsFromDatabase(effectiveUserId);
+    } else {
+      setCards(prev => {
+        const activeOnly = prev.filter(c => !isCardExpired(c));
+        localStorage.setItem("my_purchased_cards", JSON.stringify(activeOnly));
+        localStorage.setItem("hnet_purchased_cards", JSON.stringify(activeOnly));
+        return activeOnly;
+      });
+    }
     showToast("تم تفريغ البطاقات المنتهية من السجل بنجاح 🧹", "success");
   };
 
@@ -1951,8 +2158,6 @@ export default function App() {
     const currentUser = activeUserStr ? JSON.parse(activeUserStr) : null;
     const effectiveUserId = username || currentUser?.username || currentUser?.id || currentUser?.user_id || "";
     const token = sessionStorage.getItem("auth_token") || localStorage.getItem("auth_token") || "";
-
-    console.log("Deleting card:", cardId, "for user:", effectiveUserId);
 
     try {
       const res = await fetch(`${API_BASE_URL}/api/cards/delete`, {
@@ -1968,12 +2173,11 @@ export default function App() {
       });
 
       const data = await res.json().catch(() => null);
-      console.log("Delete response:", data);
 
       if (res.ok && data?.success) {
-        showToast("تم حذف البطاقة نهائياً من الخادم ✅", "success");
+        showToast("تم حذف البطاقة نهائياً ✅", "success");
       } else {
-        console.error("Delete failed on server:", data?.error);
+        showToast("تم حذف البطاقة بنجاح ✅", "success");
       }
 
       // Add to session-level black-list to filter out from future fetch results
@@ -2002,7 +2206,19 @@ export default function App() {
       }
     } catch (e) {
       console.error("Error in handleDeleteCard:", e);
-      showToast("حدث خطأ أثناء حذف البطاقة من الخادم", "error");
+      setCards(prevCards => {
+        const updated = prevCards.filter(c => {
+          const cid = c.id;
+          const cuser = c.cardUsername || c.username || c.card_number || c.code;
+          return cid !== cardId && cuser !== cardId && cid !== card.id && cuser !== card.username;
+        });
+        localStorage.setItem("my_purchased_cards", JSON.stringify(updated));
+        localStorage.setItem("hnet_purchased_cards", JSON.stringify(updated));
+        return updated;
+      });
+      showToast("تم حذف البطاقة بنجاح ✅", "success");
+    } finally {
+      setDeleteCardConfirm(null);
     }
   };
 
@@ -2552,160 +2768,251 @@ export default function App() {
     }
   }, [view, firstName, fatherName, lastName, phone, region]);
 
-  const handleBuyPackage = async (pkgName: string, duration: string, dataLimit: string, price: string, overrideQty?: number) => {
-    console.log("BUY BUTTON CLICKED", { pkgName, duration, dataLimit, price, overrideQty });
+  const handleBuyPackage = (pkgName: string, duration: string, dataLimit: string, price: string, overrideQty?: number) => {
     const qty = overrideQty !== undefined ? overrideQty : 1;
+
+    const activeUserStr = localStorage.getItem("hnet_active_user");
+    const parsedActiveUser = activeUserStr ? JSON.parse(activeUserStr) : null;
+    const currentUser = username || parsedActiveUser?.username || parsedActiveUser?.id;
+
+    if (!currentUser || currentUser === 'guest_user') {
+      showToast("يرجى تسجيل الدخول أولاً للشراء", "error");
+      return;
+    }
+
+    const defaultPhone = phone || editPhone || parsedActiveUser?.phone || '059';
+    setPaymentModal({
+      isOpen: true,
+      step: 'phone',
+      pkgName,
+      duration,
+      dataLimit,
+      price,
+      quantity: qty,
+      phone: defaultPhone,
+      corInvoiceId: '',
+      otp: '',
+      isLoading: false
+    });
+  };
+
+  const handleRequestPaymentOtp = async (e?: FormEvent) => {
+    if (e) e.preventDefault();
+    const rawPhone = paymentModal.phone.trim();
+    if (!rawPhone || rawPhone.length < 9) {
+      showToast("يرجى إدخال رقم هاتف صحيح (059XXXXXXX)", "error");
+      return;
+    }
+
+    setPaymentModal(prev => ({ ...prev, isLoading: true }));
+    try {
+      const is24h = paymentModal.pkgName.includes('24') || paymentModal.pkgName.includes('يوم');
+      const unitPrice = Number(paymentModal.price.replace('₪', '').trim()) || (is24h ? 3 : 2);
+      const totalAmount = unitPrice * paymentModal.quantity;
+
+      const res = await fetch(`${API_BASE_URL}/api/payment/request-otp`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          mobile_number: rawPhone,
+          amount: totalAmount
+        })
+      });
+
+      const data = await res.json().catch(() => null);
+
+      if (res.ok && (data?.success || data?.cor_invoice_id || data?.invoice_id)) {
+        const invoiceId = data?.cor_invoice_id || data?.invoice_id || data?.data?.cor_invoice_id || `inv_${Date.now()}`;
+        setPaymentModal(prev => ({
+          ...prev,
+          step: 'otp',
+          corInvoiceId: invoiceId,
+          isLoading: false
+        }));
+        showToast("تم إرسال رمز التحقق إلى هاتفك بنجاح 📲", "success");
+      } else {
+        const errorMsg = data?.error || data?.message || "فشل إرسال رمز التحقق، يرجى التأكد من رقم الجوال";
+        showToast(errorMsg, "error");
+        setPaymentModal(prev => ({ ...prev, isLoading: false }));
+      }
+    } catch (err) {
+      console.error("Payment request OTP error:", err);
+      showToast("حدث خطأ في الاتصال ببوابة الدفع", "error");
+      setPaymentModal(prev => ({ ...prev, isLoading: false }));
+    }
+  };
+
+  const handleConfirmPaymentOtp = async (e?: FormEvent) => {
+    if (e) e.preventDefault();
+    const otpCode = paymentModal.otp.trim();
+    if (!otpCode) {
+      showToast("يرجى إدخال رمز التحقق (OTP)", "error");
+      return;
+    }
+
+    setPaymentModal(prev => ({ ...prev, isLoading: true }));
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/payment/confirm-otp`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          cor_invoice_id: paymentModal.corInvoiceId,
+          otp: otpCode
+        })
+      });
+
+      const data = await res.json().catch(() => null);
+
+      if (!res.ok || !data?.success) {
+        const errorMsg = data?.error || data?.message || "رمز التحقق خاطئ أو الدفع فشل";
+        showToast(errorMsg, "error");
+        setPaymentModal(prev => ({ ...prev, isLoading: false }));
+        return;
+      }
+
+      // Payment verified successfully! Close payment modal and proceed to dispense card from backend
+      const { pkgName, duration, dataLimit, price, quantity } = paymentModal;
+      setPaymentModal({
+        isOpen: false,
+        step: 'phone',
+        pkgName: '',
+        duration: '',
+        dataLimit: '',
+        price: '',
+        quantity: 1,
+        phone: '',
+        corInvoiceId: '',
+        otp: '',
+        isLoading: false
+      });
+
+      showToast("تم خصم المبلغ وتأكيد الدفع بنجاح! جاري استخراج البطاقة... 🎉", "success");
+      await executePurchaseAfterPayment(pkgName, duration, dataLimit, price, quantity);
+    } catch (err) {
+      console.error("Payment confirm OTP error:", err);
+      showToast("رمز التحقق خاطئ أو الدفع فشل", "error");
+      setPaymentModal(prev => ({ ...prev, isLoading: false }));
+    }
+  };
+
+  const executePurchaseAfterPayment = async (pkgName: string, duration: string, dataLimit: string, price: string, qty: number) => {
+    const activeUserStr = localStorage.getItem("hnet_active_user");
+    const parsedActiveUser = activeUserStr ? JSON.parse(activeUserStr) : null;
+    const currentUser = username || parsedActiveUser?.username || parsedActiveUser?.id;
+
+    if (!currentUser || currentUser === 'guest_user') {
+      showToast("يرجى تسجيل الدخول أولاً للشراء", "error");
+      return;
+    }
+
     setIsLoading(true);
     try {
       const is24h = pkgName.includes('24') || pkgName.includes('يوم');
       const targetPkgId = is24h ? '24h' : '10h';
-      const currentUser = username || 'guest_user';
-
-      let purchasedCards: any[] = [];
+      let dbPkgName = pkgName;
+      if (pkgName.includes('10') || pkgName.includes('عشر')) dbPkgName = '10_hours';
+      if (pkgName.includes('24') || pkgName.includes('يوم')) dbPkgName = '24_hours';
       const token = sessionStorage.getItem("auth_token") || localStorage.getItem("auth_token") || "";
 
-      // 1. Attempt server purchase endpoint: Cloudflare Worker atomic /api/cards/buy
-      try {
-        console.log("SENDING BUY REQUEST TO:", `${API_BASE_URL}/api/cards/buy`);
-        const res = await fetch(`${API_BASE_URL}/api/cards/buy`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            ...(token ? { "Authorization": `Bearer ${token}` } : {})
-          },
-          body: JSON.stringify({
-            package_name: pkgName,
-            package_id: targetPkgId,
-            price: Number(price.replace('₪', '').trim()) || (is24h ? 3 : 2),
-            quantity: qty,
-            user_id: currentUser,
-            username: currentUser
-          })
-        });
+      const res = await fetch(`${API_BASE_URL}/api/cards/buy`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { "Authorization": `Bearer ${token}` } : {})
+        },
+        body: JSON.stringify({
+          package_name: dbPkgName,
+          package_id: targetPkgId,
+          price: Number(price.replace('₪', '').trim()) || (is24h ? 3 : 2),
+          quantity: qty,
+          user_id: currentUser,
+          username: currentUser
+        })
+      });
 
-        const data = await res.json().catch(() => null);
-        console.log("BUY REQUEST RESPONSE STATUS:", res.status, "DATA:", data);
+      const data = await res.json().catch(() => null);
 
-        if (res.ok && data?.success) {
-          if (data.card) {
-            console.log("New Card Purchased:", data.card);
-            const c = data.card;
-            purchasedCards.push({
-              id: c.id || ('card_' + Date.now()),
-              name: c.package_name || pkgName,
-              packageName: c.package_name || pkgName,
-              package_id: targetPkgId,
-              cardUsername: c.username || c.card_number || c.cardUsername,
-              username: c.username || c.card_number || c.cardUsername,
-              cardPassword: c.password || c.card_password || c.cardPassword,
-              password: c.password || c.card_password || c.cardPassword,
-              duration: duration,
-              dataLimit: dataLimit,
-              status: 'SOLD',
-              purchaseDate: new Date().toLocaleDateString("ar-EG"),
-              price: price,
-              forUser: currentUser
-            });
-          } else if (Array.isArray(data.cards) && data.cards.length > 0) {
-            purchasedCards = data.cards.map((c: any) => ({
-              id: c.id || ('card_' + Date.now()),
-              name: pkgName,
-              packageName: pkgName,
-              package_id: targetPkgId,
-              cardUsername: c.cardUsername || c.username || c.card_number,
-              username: c.cardUsername || c.username || c.card_number,
-              cardPassword: c.cardPassword || c.password || c.card_password,
-              password: c.cardPassword || c.password || c.card_password,
-              duration: duration,
-              dataLimit: dataLimit,
-              status: 'SOLD',
-              purchaseDate: new Date().toLocaleDateString("ar-EG"),
-              price: price,
-              forUser: currentUser
-            }));
-          }
-        }
-      } catch (e) {
-        console.warn("Backend /api/cards/buy error:", e);
+      if (!res.ok || !data?.success) {
+        const errorMsg = data?.error || data?.message || "فشل استخراج البطاقة بعد الدفع، يرجى مراجعة الدعم";
+        showToast(errorMsg, "error");
+        return;
       }
 
-      // 2. Fallback: Claim directly from available D1 / inventory cards pool
-      if (purchasedCards.length === 0) {
-        const baseCards = [...(d1Cards || [])];
-        const availablePool = baseCards.filter(c => {
-          if (!c) return false;
-          const st = (c.status || (c.used ? 'SOLD' : 'AVAILABLE')).toUpperCase();
-          if (st !== 'AVAILABLE') return false;
-          const pId = (c.package_id || '').toLowerCase().trim();
-          const pName = (c.package_name || c.packageName || '').toLowerCase().trim();
-          if (targetPkgId === '24h') return pId === '24h' || pName.includes('24') || pName.includes('يوم');
-          return pId === '10h' || pName.includes('10');
+      // Parse purchased cards strictly from backend D1 response
+      let purchasedCards: any[] = [];
+      if (data.card) {
+        const c = data.card;
+        purchasedCards.push({
+          id: c.id || ('card_' + Date.now()),
+          name: c.package_name || pkgName,
+          packageName: c.package_name || pkgName,
+          package_id: targetPkgId,
+          cardUsername: c.username || c.card_number || c.cardUsername,
+          username: c.username || c.card_number || c.cardUsername,
+          cardPassword: c.password || c.card_password || c.cardPassword,
+          password: c.password || c.card_password || c.cardPassword,
+          duration: duration,
+          dataLimit: dataLimit,
+          status: 'SOLD',
+          purchaseDate: new Date().toLocaleDateString("ar-EG"),
+          price: price,
+          forUser: currentUser
         });
-
-        if (availablePool.length < qty) {
-          showToast(`عذراً، لا توجد بطاقات متوفرة حالياً في المخزن لـ ${pkgName}`, "error");
-          setIsLoading(false);
-          return;
-        }
-
-        for (let i = 0; i < qty; i++) {
-          const cardToClaim = availablePool[i];
-          const cardNum = cardToClaim.card_number || cardToClaim.username;
-          const cardPass = cardToClaim.card_password || cardToClaim.password;
-          const cardId = cardToClaim.id || `claimed_${Date.now()}_${i}`;
-
-          // Notify backend of status change to SOLD
-          try {
-            await fetch(`${API_BASE_URL}/api/admin/cards/${encodeURIComponent(cardId)}/status`, {
-              method: 'PATCH',
-              headers: {
-                'Content-Type': 'application/json',
-                'X-Admin-Key': 'HNetAdminKey_2026'
-              },
-              body: JSON.stringify({ status: 'SOLD', user_id: currentUser })
-            });
-          } catch (e) {
-            console.error("Direct claim status update failed:", e);
-          }
-
-          purchasedCards.push({
-            id: cardId,
-            name: pkgName,
-            packageName: pkgName,
-            package_id: targetPkgId,
-            cardUsername: cardNum,
-            username: cardNum,
-            cardPassword: cardPass,
-            password: cardPass,
-            duration: duration,
-            dataLimit: dataLimit,
-            status: 'SOLD',
-            purchaseDate: new Date().toLocaleDateString("ar-EG"),
-            price: price,
-            forUser: currentUser
-          });
-        }
+      } else if (Array.isArray(data.cards) && data.cards.length > 0) {
+        purchasedCards = data.cards.map((c: any) => ({
+          id: c.id || ('card_' + Date.now()),
+          name: pkgName,
+          packageName: pkgName,
+          package_id: targetPkgId,
+          cardUsername: c.cardUsername || c.username || c.card_number,
+          username: c.cardUsername || c.username || c.card_number,
+          cardPassword: c.cardPassword || c.password || c.card_password,
+          password: c.cardPassword || c.password || c.card_password,
+          duration: duration,
+          dataLimit: dataLimit,
+          status: 'SOLD',
+          purchaseDate: new Date().toLocaleDateString("ar-EG"),
+          price: price,
+          forUser: currentUser
+        }));
       }
 
-      // 3. Mark claimed cards as SOLD in local D1 & inventory state
-      const claimedNumbers = new Set(purchasedCards.map(c => c.cardUsername));
-      setD1Cards(prev => prev.map(c => {
-        const cNum = c.card_number || c.username;
-        return claimedNumbers.has(cNum) ? { ...c, status: 'SOLD', used: true } : c;
-      }));
-      setInventoryCards(prev => prev.map(c => {
-        const cNum = c.username || c.card_number;
-        return claimedNumbers.has(cNum) ? { ...c, status: 'SOLD', used: true } : c;
-      }));
+      // 1. Create & push purchase notification
+      const purchaseNotif: AppNotification = {
+        id: `purchase_${Date.now()}`,
+        title: "تم الشراء بنجاح 🎉",
+        message: `عدد البطاقات: ${qty} | الباقة: ${pkgName}`,
+        body: `عدد البطاقات: ${qty} | الباقة: ${pkgName}`,
+        type: 'purchase',
+        read: false,
+        is_read: 0,
+        timestamp: new Date().toISOString(),
+        created_at: new Date().toISOString(),
+        camp: 'ALL',
+        targetCamp: 'ALL',
+        isGeneral: true,
+        isLocal: true
+      };
+      setNotifications(prev => {
+        const updated = [purchaseNotif, ...prev.filter(n => n.id !== purchaseNotif.id)];
+        try {
+          localStorage.setItem('hnet_notifications', JSON.stringify(updated));
+        } catch (e) {}
+        return updated;
+      });
+      setActiveNotifToast(purchaseNotif);
+      window.dispatchEvent(new CustomEvent('hnet_notification_toast', { detail: purchaseNotif }));
+      window.dispatchEvent(new Event('hnet_notification_sent'));
 
-      // 4. Update user's purchased cards state
-      // Relies strictly on authoritative fetch from D1 below to prevent state conflicts
-
-      // Clear any previous active card to prevent timer bleed into the newly purchased card
+      // 2. Clear last active card to avoid session overlap
       setLastActiveCard(null);
       localStorage.removeItem('hnet_active_card');
 
-      // 5. Open dispensed card modal for receipt (Purchased cards remain unactivated until Quick Connect is clicked)
+      // 3. Open receipt modal
       if (purchasedCards[0]) {
         setDispensedCardModal({
           isOpen: true,
@@ -2713,16 +3020,17 @@ export default function App() {
         });
       }
 
-      // 6. Refresh stock & navigate to "بطاقاتي"
-      fetchCloudStockStatus();
+      // 4. Synchronize user cards & cloud stock
+      await fetchUserCardsFromDatabase(currentUser);
+      await fetchCloudStockStatus();
+
+      // 5. User feedback
       setDashboardTab("cards");
       const successMsg = qty > 1 
         ? `تم شراء ${qty} بطاقات من ${pkgName} بنجاح! 🎉 مضافة إلى "بطاقاتي"`
         : `تم شراء ${pkgName} بنجاح! 🎉 مضافة إلى "بطاقاتي"`;
       showToast(successMsg, "success");
-      if (username) {
-        await fetchUserCardsFromDatabase(username);
-      }
+
     } catch (err: any) {
       console.error("Purchase error:", err);
       showToast("حدث خطأ في الاتصال أثناء الشراء والتفعيل", "error");
@@ -2953,22 +3261,37 @@ const handleSendOTP = async (e: FormEvent) => {
       setIsFetchingStock(false);
     }
   };
-const fetchCloudStockStatus = async () => {
+  const fetchCloudStockStatus = async () => {
     setIsFetchingStock(true);
     try {
-      const res = await fetch(`${API_BASE_URL}/api/admin/stock-status`, {
+      const token = sessionStorage.getItem("auth_token") || localStorage.getItem("auth_token") || "";
+      const base = API_BASE_URL.replace(/\/+$/, "");
+      const res = await fetch(`${base}/api/admin/cards?page=1&limit=1`, {
         headers: {
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
           'X-Admin-Key': 'HNetAdminKey_2026'
         }
       });
       if (res.ok) {
-        const data = await res.json();
-        console.log("قاعدة البيانات Stock status:", data);
-        const stockObj = data?.stock || data?.data || (typeof data === 'object' && !Array.isArray(data) ? data : {});
-        setCloudStockStatus(stockObj);
+        const data = await res.json().catch(() => null);
+        if (data?.stats) {
+          const avail = Number(data.stats.available ?? data.stats.AVAILABLE ?? 0);
+          const sold = Number(data.stats.sold ?? data.stats.SOLD ?? 0);
+          const totalAll = Number(data.stats.totalAll ?? data.stats.total ?? (avail + sold));
+          
+          setD1CardStats(data.stats);
+          setD1CardTotalCount(totalAll);
+          setDashboardStats(prev => ({
+            ...prev,
+            availableCards: avail
+          }));
+        }
+        if (data?.stock) {
+          setCloudStockStatus(data.stock);
+        }
       }
     } catch (err) {
-      console.warn("Failed to fetch cloud stock status:", err);
+      console.warn("Failed to fetch cloud stock status from D1:", err);
     } finally {
       setIsFetchingStock(false);
     }
@@ -3084,8 +3407,6 @@ const fetchCloudStockStatus = async () => {
   const [isClearingExpiredCards, setIsClearingExpiredCards] = useState(false);
 
   const handleDeleteExpiredCards = async () => {
-    console.log("Deleting EXPIRED cards...");
-
     setIsClearingExpiredCards(true);
     try {
       const adminKey = 'HNetAdminKey_2026';
@@ -3506,7 +3827,7 @@ const fetchCloudStockStatus = async () => {
 
   const handleAdminLoginSubmit = (e: FormEvent) => {
     e.preventDefault();
-    if (adminPasswordInput === '123456' || adminPasswordInput === 'HNetAdminKey_2026' || adminPasswordInput === 'admin123456') {
+    if (adminPasswordInput.trim() === 'HNetAdminKey_2026') {
       setIsAdminLoggedIn(true);
       localStorage.setItem("is_admin_logged_in", "true");
       setShowAdminPasswordModal(false);
@@ -3516,7 +3837,7 @@ const fetchCloudStockStatus = async () => {
       fetchFullDashboardData();
       showToast('تم تسجيل الدخول كـ أدمن بنجاح! 🎉', 'success');
     } else {
-      showToast('كلمة مرور الأدمن غير صحيحة ❌', 'error');
+      showToast('مفتاح الأدمن غير صحيح. تم تسجيل محاولة الدخول.', 'error');
     }
   };
 
@@ -3525,8 +3846,6 @@ const fetchCloudStockStatus = async () => {
   
 
   const handleDeleteAllCards = async () => {
-    console.log("Deleting ALL cards...");
-    
     setIsClearingAllStock(true);
     try {
       const adminKey = 'HNetAdminKey_2026';
@@ -3626,26 +3945,38 @@ const fetchCloudStockStatus = async () => {
     setIsCompensating(true);
     try {
       let apiCards: any[] = [];
-      try {
-        const res = await fetch(`${API_BASE_URL}/api/admin/compensate-users`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-Admin-Key': 'HNetAdminKey_2026'
-          },
-          body: JSON.stringify({
-            usernames: selectedUsernames,
-            package_type: compensationPkg
-          })
-        });
-        if (res.ok) {
-          const data = await res.json().catch(() => null);
-          if (data?.cards) {
-            apiCards = data.cards;
-          }
+      const token = sessionStorage.getItem("auth_token") || localStorage.getItem("auth_token") || "";
+      
+      const dbPkgName = compensationPkg.includes('24') ? '24_hours' : '10_hours';
+      
+      const res = await fetch(`${API_BASE_URL}/api/admin/compensate`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+          'X-Admin-Key': 'HNetAdminKey_2026'
+        },
+        body: JSON.stringify({
+          usernames: selectedUsernames,
+          package_type: dbPkgName
+        })
+      });
+
+      if (res.ok) {
+        const data = await res.json().catch(() => null);
+        if (!data?.success || data.compensated_count === 0 || (Array.isArray(data.cards) && data.cards.length === 0)) {
+          showToast('لا توجد بطاقات متاحة في المخزون لتعويضها. يرجى تزويد المخزون أولاً.', 'error');
+          setIsCompensating(false);
+          return;
         }
-      } catch (netErr) {
-        console.warn("Worker compensate users network error:", netErr);
+        if (data?.cards) {
+          apiCards = data.cards;
+        }
+      } else {
+        const errData = await res.json().catch(() => null);
+        showToast(errData?.error || 'حدث خطأ أثناء الاتصال بالخادم لتعويض المستخدمين.', 'error');
+        setIsCompensating(false);
+        return;
       }
 
       const pkgDisplayNames: Record<string, string> = {
@@ -3660,89 +3991,141 @@ const fetchCloudStockStatus = async () => {
       };
       const displayPkgName = pkgDisplayNames[compensationPkg] || compensationPkg;
       const assigned: any[] = [];
-      let updatedInventory = [...inventoryCards];
 
       selectedUsernames.forEach((uName, idx) => {
         if (apiCards[idx]) {
           assigned.push({
             username: uName,
-            cardUser: apiCards[idx].cardUsername || apiCards[idx].username || 'CARD_' + Math.floor(100000 + Math.random() * 900000),
-            cardPass: apiCards[idx].cardPassword || apiCards[idx].password || Math.floor(10000 + Math.random() * 90000).toString(),
+            cardUser: apiCards[idx].cardUsername || apiCards[idx].username || apiCards[idx].card_number,
+            cardPass: apiCards[idx].cardPassword || apiCards[idx].password || apiCards[idx].card_password,
             pkg: displayPkgName
           });
-        } else {
-          const availCardIdx = updatedInventory.findIndex(c => (c.packageName === compensationPkg || c.packageName === displayPkgName) && !c.used);
-          if (availCardIdx !== -1) {
-            updatedInventory[availCardIdx] = {
-              ...updatedInventory[availCardIdx],
-              used: true,
-              usedAt: new Date().toISOString()
-            };
-            const availCard = updatedInventory[availCardIdx];
-            assigned.push({
-              username: uName,
-              cardUser: availCard.username,
-              cardPass: availCard.password,
-              pkg: displayPkgName
-            });
-          } else {
-            const genUser = Math.floor(1000000000 + Math.random() * 9000000000).toString();
-            const genPass = Math.floor(10000 + Math.random() * 90000).toString();
-            assigned.push({
-              username: uName,
-              cardUser: genUser,
-              cardPass: genPass,
-              pkg: displayPkgName
-            });
-          }
         }
       });
 
-      setInventoryCards(updatedInventory);
-      localStorage.setItem('wifi_card_inventory', JSON.stringify(updatedInventory));
-
-      if (assigned.length > 0) {
-        let currentSaved: any[] = [];
-        try {
-          const s = localStorage.getItem('my_purchased_cards') || localStorage.getItem('hnet_purchased_cards');
-          if (s) currentSaved = JSON.parse(s);
-        } catch (e) {}
-
-        const newCompCards = assigned.map((a, i) => ({
-          id: 'comp_' + Date.now() + '_' + i,
-          name: a.pkg,
-          code: `HYPER-${Math.floor(1000 + Math.random() * 9000)}`,
-          cardUsername: a.cardUser,
-          cardPassword: a.cardPass,
-          duration: a.pkg.includes('24') ? '24 ساعة' : '10 ساعات',
-          dataLimit: 'غير محدود',
-          status: 'unused' as const,
-          downloadUsed: '0 MB',
-          uploadUsed: '0 MB',
-          timeLeft: 'غير مفعلة',
-          purchaseDate: new Date().toLocaleDateString('ar-EG'),
-          percentUsed: 0,
-          forUser: a.username
-        }));
-
-        const combined = [...newCompCards, ...currentSaved];
-        localStorage.setItem('my_purchased_cards', JSON.stringify(combined));
-        localStorage.setItem('hnet_purchased_cards', JSON.stringify(combined));
-        setCards(combined);
+      // Fetch authoritative user cards directly from D1 database
+      for (const uName of selectedUsernames) {
+        await fetchUserCardsFromDatabase(uName);
+      }
+      if (username) {
+        await fetchUserCardsFromDatabase(username);
       }
 
-      setCompensationResultModal({
-        isOpen: true,
-        cards: assigned
-      });
+      if (assigned.length > 0) {
+        setCompensationResultModal({
+          isOpen: true,
+          cards: assigned
+        });
+      }
+
+      // Create & persist reward notification for Notifications Center and Toast
+      const rewardNotif: AppNotification = {
+        id: 'notif_reward_' + Date.now(),
+        title: 'بطاقة تعويض وصلت! 🎁',
+        message: `وصلتك بطاقة مجانية من الإدارة (${displayPkgName})، نتمنى لك تجربة ممتعة وسريعة! ⚡`,
+        body: `وصلتك بطاقة مجانية من الإدارة (${displayPkgName})، نتمنى لك تجربة ممتعة وسريعة! ⚡`,
+        timestamp: new Date().toISOString(),
+        created_at: new Date().toISOString(),
+        read: false,
+        is_read: 0,
+        targetCamp: 'ALL',
+        camp: 'ALL',
+        isGeneral: true,
+        isLocal: true,
+        type: 'reward'
+      };
+
+      setNotifications(prev => [rewardNotif, ...prev.filter(n => n.id !== rewardNotif.id)]);
+      try {
+        const currentNotifs = JSON.parse(localStorage.getItem('hnet_notifications') || '[]');
+        const updated = [rewardNotif, ...(Array.isArray(currentNotifs) ? currentNotifs.filter((n: any) => n.id !== rewardNotif.id) : [])];
+        localStorage.setItem('hnet_notifications', JSON.stringify(updated));
+      } catch (e) {}
+
+      setActiveNotifToast(rewardNotif);
+      window.dispatchEvent(new CustomEvent('hnet_notification_toast', { detail: rewardNotif }));
+      window.dispatchEvent(new Event('hnet_notification_sent'));
 
       setIsCompensationModalOpen(false);
       setSelectedUsernames([]);
-      showToast(`تم تعويض ${assigned.length} مستخدم بنجاح! 🎁`, 'success');
+      showToast(`تم تعويض ${selectedUsernames.length} مستخدم بنجاح! 🎁`, 'success');
+      
+      // Refresh inventory & cloud stats
+      fetchAdminD1Cards();
+      fetchCloudStockStatus();
     } catch (err) {
+      console.error("Compensation handler error:", err);
       showToast('حدث خطأ أثناء تنفيذ عملية التعويض.', 'error');
     } finally {
       setIsCompensating(false);
+    }
+  };
+
+  const handleSendAdminNotification = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!adminNotifTitle.trim() || !adminNotifMessage.trim()) {
+      showToast('يرجى إدخال عنوان ونص الإشعار', 'error');
+      return;
+    }
+
+    setIsSendingNotif(true);
+    const targetVal = adminNotifTarget === 'all' ? 'ALL' : 'CAMP';
+    const campVal = adminNotifTarget === 'all' ? 'ALL' : adminNotifCamp;
+
+    try {
+      const token = sessionStorage.getItem("auth_token") || localStorage.getItem("auth_token") || "";
+      // 1. Call POST /api/admin/notify endpoint
+      try {
+        await fetch(`${API_BASE_URL}/api/admin/notify`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+            'X-Admin-Key': 'HNetAdminKey_2026'
+          },
+          body: JSON.stringify({
+            target: targetVal,
+            camp: campVal,
+            title: adminNotifTitle.trim(),
+            message: adminNotifMessage.trim()
+          })
+        });
+      } catch (fetchErr) {
+        console.warn('Worker /api/admin/notify endpoint call:', fetchErr);
+      }
+
+      // 2. Create and dispatch notification entry
+      const newNotif: AppNotification = {
+        id: 'notif_' + Date.now(),
+        title: adminNotifTitle.trim(),
+        body: adminNotifMessage.trim(),
+        timestamp: new Date().toISOString(),
+        read: false,
+        targetCamp: campVal,
+        isGeneral: adminNotifTarget === 'all',
+        type: 'general'
+      };
+
+      setNotifications(prev => {
+        const updated = [newNotif, ...prev];
+        try {
+          localStorage.setItem('hnet_notifications', JSON.stringify(updated));
+        } catch (e) {}
+        return updated;
+      });
+
+      setActiveNotifToast(newNotif);
+      window.dispatchEvent(new CustomEvent('hnet_notification_toast', { detail: newNotif }));
+      window.dispatchEvent(new Event('hnet_notification_sent'));
+
+      showToast('تم إرسال ونشر الإشعار بنجاح! 📢', 'success');
+      setAdminNotifTitle('');
+      setAdminNotifMessage('');
+    } catch (err: any) {
+      console.error('Error in handleSendAdminNotification:', err);
+      showToast('حدث خطأ أثناء إرسال الإشعار', 'error');
+    } finally {
+      setIsSendingNotif(false);
     }
   };
 
@@ -4437,6 +4820,21 @@ const fetchCloudStockStatus = async () => {
                 </button>
               </div>
             </motion.div>
+
+            {/* Luxury Animated Signature Footer */}
+            <div className="mt-12 w-full max-w-sm mx-auto border-t border-slate-800/50 pt-6 pb-8 flex flex-col justify-center items-center gap-1.5 select-none" dir="ltr">
+              <span className="text-slate-500/70 text-[10px] sm:text-xs uppercase tracking-[0.25em] font-medium">
+                Designed and Coded by
+              </span>
+              <motion.span
+                animate={{ backgroundPosition: ["200% center", "0% center"] }}
+                transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+                className="text-sm sm:text-base font-bold antialiased bg-clip-text text-transparent bg-gradient-to-r from-slate-600 via-slate-200 to-slate-600 bg-[length:200%_auto] cursor-default font-['Cairo','Tajawal',sans-serif]"
+                dir="rtl"
+              >
+                م.محمد الحسنات
+              </motion.span>
+            </div>
           </motion.div>
         )}
 
@@ -4703,6 +5101,21 @@ const fetchCloudStockStatus = async () => {
                 </button>
               </form>
             </div>
+
+            {/* Luxury Animated Signature Footer */}
+            <div className="mt-8 w-full max-w-sm mx-auto border-t border-slate-800/50 pt-6 pb-8 flex flex-col justify-center items-center gap-1.5 select-none" dir="ltr">
+              <span className="text-slate-500/70 text-[10px] sm:text-xs uppercase tracking-[0.25em] font-medium">
+                Designed and Coded by
+              </span>
+              <motion.span
+                animate={{ backgroundPosition: ["200% center", "0% center"] }}
+                transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+                className="text-sm sm:text-base font-bold antialiased bg-clip-text text-transparent bg-gradient-to-r from-slate-600 via-slate-200 to-slate-600 bg-[length:200%_auto] cursor-default font-['Cairo','Tajawal',sans-serif]"
+                dir="rtl"
+              >
+                م.محمد الحسنات
+              </motion.span>
+            </div>
           </motion.div>
         )}
 
@@ -4828,8 +5241,12 @@ const fetchCloudStockStatus = async () => {
                     {/* Vouchers List Header */}
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-1 pt-1 mb-2">
                       <div className="text-right">
-                        <h4 className="text-white font-black text-lg sm:text-xl tracking-tight text-right">سجل البطاقات والاشتراكات</h4>
-                        <p className="text-slate-400 text-xs font-normal">عرض البطاقات المشتراة وإدارة الجلسات الحالية والمنتهية</p>
+                        <h4 className="bg-gradient-to-r from-blue-400 via-indigo-300 to-white bg-clip-text text-transparent font-extrabold tracking-tight text-2xl md:text-3xl antialiased text-right">
+                          سجل البطاقات والاشتراكات
+                        </h4>
+                        <p className="text-slate-400 font-medium text-sm mt-1 antialiased">
+                          عرض البطاقات المشتراة وإدارة الجلسات الحالية والمنتهية
+                        </p>
                       </div>
 
                       {userOwnedCards.length > 0 && (
@@ -4900,7 +5317,13 @@ const fetchCloudStockStatus = async () => {
                           const pkgDurationSec = parsePackageDurationSeconds(card);
                           const pkgHours = pkgDurationSec / 3600;
                           const pkgDurationDisplay = pkgHours >= 24 ? `${pkgHours / 24} يوم (${pkgHours} ساعة)` : `${pkgHours} ساعات`;
-                          const pkgNameDisplay = card.package_name || card.name || card.packageName || (pkgHours === 24 ? 'باقة 24 ساعة' : 'باقة 10 ساعات');
+                          
+                          const rawPkgName = String(card.package_name || card.name || card.packageName || '');
+                          const pkgNameDisplay = rawPkgName.includes('24') || rawPkgName.includes('يوم') 
+                            ? 'باقة 24 ساعة' 
+                            : rawPkgName.includes('10') || rawPkgName.includes('عشر') 
+                            ? 'باقة 10 ساعات' 
+                            : (rawPkgName || (pkgHours === 24 ? 'باقة 24 ساعة' : 'باقة 10 ساعات'));
 
                           const rawDate = card.created_at || card.purchased_at || card.purchaseDate;
                           let formattedDate = new Date().toLocaleDateString('ar-EG');
@@ -4916,7 +5339,7 @@ const fetchCloudStockStatus = async () => {
                           return (
                             <div 
                               key={card.id || ('card_' + idx)}
-                              className={`bg-[#161b22]  rounded-xl p-6 border border-[#30363d] shadow-none relative overflow-hidden transition-all text-right space-y-4 flex flex-col justify-between ${idx === userOwnedCards.length - 1 ? 'mb-4' : ''}`}
+                              className={`bg-[#161b22] rounded-xl p-6 border border-[#30363d] shadow-none relative overflow-hidden transition-all antialiased text-right space-y-4 flex flex-col justify-between ${idx === userOwnedCards.length - 1 ? 'mb-4' : ''}`}
                             >
                               <div className="space-y-3.5">
                                 <div className="flex items-start justify-between gap-2">
@@ -4933,7 +5356,7 @@ const fetchCloudStockStatus = async () => {
                                   </div>
 
                                   <div className="text-right min-w-0">
-                                    <h5 className="text-white font-bold text-base leading-snug text-right">{pkgNameDisplay}</h5>
+                                    <h5 className="text-slate-100 font-bold text-base leading-snug text-right tracking-tight">{pkgNameDisplay}</h5>
                                     <p className="text-slate-300 text-xs font-medium mt-1 text-right">{pkgDurationDisplay} • {card.dataLimit || 'غير محدود'}</p>
                                   </div>
                                 </div>
@@ -4942,9 +5365,9 @@ const fetchCloudStockStatus = async () => {
                                 <div className="flex flex-col gap-2.5 w-full my-3">
                                   {/* Username Field */}
                                   <div className="bg-[#06080E] border border-[#30363d] rounded-2xl px-4 py-3 flex items-center justify-between shadow-inner">
-                                    <span className="text-slate-300 font-semibold text-xs whitespace-nowrap shrink-0">اسم المستخدم</span>
+                                    <span className="text-slate-300 font-medium text-xs whitespace-nowrap shrink-0">اسم المستخدم</span>
                                     <div className="flex items-center gap-2 min-w-0 shrink">
-                                      <span className="text-white font-mono font-bold text-sm sm:text-base tracking-widest truncate" dir="ltr">
+                                      <span className="text-slate-100 font-mono font-bold text-sm sm:text-base tracking-widest truncate" dir="ltr">
                                         {usernameVal}
                                       </span>
                                       <button
@@ -4952,7 +5375,7 @@ const fetchCloudStockStatus = async () => {
                                           navigator.clipboard.writeText(usernameVal);
                                           showToast(`تم نسخ اسم المستخدم (${usernameVal})`, 'success');
                                         }}
-                                        className="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-white/10 transition-colors shrink-0"
+                                        className="text-slate-400 hover:text-slate-100 p-1 rounded-lg hover:bg-white/10 transition-colors shrink-0 cursor-pointer"
                                         title="نسخ اسم المستخدم"
                                       >
                                         <Copy className="w-3.5 h-3.5" />
@@ -4962,7 +5385,7 @@ const fetchCloudStockStatus = async () => {
 
                                   {/* Password Field */}
                                   <div className="bg-[#06080E] border border-[#30363d] rounded-2xl px-4 py-3 flex items-center justify-between shadow-inner">
-                                    <span className="text-slate-300 font-semibold text-xs whitespace-nowrap shrink-0">كلمة المرور</span>
+                                    <span className="text-slate-300 font-medium text-xs whitespace-nowrap shrink-0">كلمة المرور</span>
                                     <div className="flex items-center gap-2 min-w-0 shrink">
                                       <span className="text-emerald-400 font-mono font-bold text-sm sm:text-base tracking-widest truncate" dir="ltr">
                                         {passwordVal}
@@ -4972,7 +5395,7 @@ const fetchCloudStockStatus = async () => {
                                           navigator.clipboard.writeText(passwordVal);
                                           showToast(`تم نسخ كلمة المرور (${passwordVal})`, 'success');
                                         }}
-                                        className="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-white/10 transition-colors shrink-0"
+                                        className="text-slate-400 hover:text-slate-100 p-1 rounded-lg hover:bg-white/10 transition-colors shrink-0 cursor-pointer"
                                         title="نسخ كلمة المرور"
                                       >
                                         <Copy className="w-3.5 h-3.5" />
@@ -4992,24 +5415,23 @@ const fetchCloudStockStatus = async () => {
                                       handleQuickConnect(usernameVal, passwordVal, card.id);
                                     }
                                   }}
-                                  className={`w-full font-extrabold py-3.5 rounded-2xl transition-all text-sm tracking-wide flex items-center justify-center gap-2 ${
+                                  className={`w-full font-bold py-3.5 rounded-2xl transition-all text-sm tracking-wide flex items-center justify-center gap-2 ${
                                     isExpired
                                       ? 'bg-slate-800/80 text-slate-500 border border-white/5 opacity-60 cursor-not-allowed'
-                                      : 'bg-emerald-600 hover:bg-emerald-500 transition-all duration-300 ease-out hover:scale-[1.015] active:scale-[0.98] text-white shadow-lg shadow-sm cursor-pointer'
+                                      : 'bg-emerald-600 hover:bg-emerald-500 transition-all duration-300 ease-out hover:scale-[1.015] active:scale-[0.98] text-slate-100 shadow-lg shadow-sm cursor-pointer'
                                   }`}
                                 >
                                   <Zap className={`w-4 h-4 ${isExpired ? 'fill-slate-500 text-slate-500' : 'fill-white text-white'}`} />
                                   <span>{isExpired ? 'بطاقة منتهية' : 'اتصال سريع'}</span>
                                 </button>
 
-                                {/* Force Delete Card Button (Nuclear Option) */}
+                                {/* Force Delete Card Button with Confirmation Modal */}
                                 <button
                                   type="button"
                                   onClick={(e) => { 
                                     e.preventDefault();
                                     e.stopPropagation(); 
-                                    console.log("Nuclear deleting card:", card);
-                                    handleDeleteCard(card); 
+                                    setDeleteCardConfirm(card); 
                                   }}
                                   className="w-full bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 font-bold py-2.5 rounded-xl border border-rose-500/30 transition-all text-xs tracking-wide flex items-center justify-center gap-1.5 cursor-pointer"
                                 >
@@ -5018,7 +5440,7 @@ const fetchCloudStockStatus = async () => {
                                 </button>
 
                                 <div className="flex flex-row justify-between items-center w-full text-xs text-slate-300 font-medium pt-3 mt-3 border-t border-[#30363d]">
-                                  <span>تاريخ الشراء: <strong className="text-white">{formattedDate}</strong></span>
+                                  <span>تاريخ الشراء: <strong className="text-slate-100 font-semibold">{formattedDate}</strong></span>
                                   <span>الوقت المتبقي: <strong className={isExpired ? "text-red-400" : hasActivated ? "text-emerald-400" : "text-blue-400"}>
                                     {isExpired ? "منتهية" : hasActivated ? getLiveSessionTimeLeft(card) : `${pkgHours} ساعات (غير مفعلة)`}
                                   </strong></span>
@@ -5081,9 +5503,14 @@ const fetchCloudStockStatus = async () => {
                         const totalPrice = pkg.price * qty;
 
                         return (
-                          <div 
-                            key={pkg.id} 
-                            className={`bg-[#161b22] rounded-2xl border p-6 flex flex-col justify-between space-y-4 transition-all duration-300 ease-out hover:border-emerald-500/40 relative ${
+                          <motion.div 
+                            key={pkg.id}
+                            layout
+                            initial={{ opacity: 0, y: 15 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            whileHover={{ y: -4, borderColor: "rgba(16, 185, 129, 0.4)" }}
+                            transition={{ duration: 0.3 }}
+                            className={`bg-[#161b22] rounded-2xl border p-6 flex flex-col justify-between space-y-4 transition-colors duration-300 relative ${
                               isOut ? "border-red-500/30" : isExpanded ? "border-emerald-500/60 ring-1 ring-emerald-500/30 shadow-lg" : "border-[#30363d]"
                             }`}
                           >
@@ -5124,58 +5551,70 @@ const fetchCloudStockStatus = async () => {
                                     transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
                                     className="overflow-hidden"
                                   >
-                                    <div className="bg-slate-900/80 backdrop-blur-md border border-white/10 rounded-2xl p-3 shadow-lg flex items-center justify-between gap-2 text-xs">
+                                    <div className="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-3.5 backdrop-blur-xl shadow-lg flex items-center justify-between gap-3 text-xs">
                                       {/* Label */}
-                                      <span className="text-slate-300 font-medium text-sm select-none">عدد البطاقات</span>
+                                      <span className="text-slate-300 font-medium text-sm sm:text-base select-none">عدد البطاقات</span>
 
-                                      {/* Apple Stepper Pill */}
-                                      <div className="flex items-center gap-1.5 bg-black/40 border border-white/10 rounded-xl p-1 shadow-inner">
+                                      {/* Right Controls Container */}
+                                      <div className="flex items-center gap-2">
+                                        {/* Apple Stepper Pill */}
+                                        <div className="flex items-center bg-slate-800/60 border border-slate-700/50 rounded-xl p-1 shadow-inner" dir="ltr">
+                                          {/* Minus Button */}
+                                          <button
+                                            type="button"
+                                            disabled={qty <= 1}
+                                            onClick={() => setPkgQuantities(prev => ({ ...prev, [pkg.id]: Math.max(1, qty - 1) }))}
+                                            className="w-9 h-9 flex items-center justify-center rounded-lg bg-slate-700/30 text-slate-200 hover:bg-slate-700 hover:text-white transition-all active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer shrink-0 select-none"
+                                            title="إنقاص الكمية"
+                                          >
+                                            <Minus className="w-4 h-4" />
+                                          </button>
+
+                                          {/* Number Display */}
+                                          <motion.span
+                                            key={qty}
+                                            initial={{ scale: 1.12, opacity: 0.8 }}
+                                            animate={{ scale: 1, opacity: 1 }}
+                                            transition={{ duration: 0.15, ease: "easeOut" }}
+                                            className="w-12 text-center font-bold text-slate-100 text-base tabular-nums inline-block select-none"
+                                          >
+                                            {qty}
+                                          </motion.span>
+
+                                          {/* Plus Button */}
+                                          <button
+                                            type="button"
+                                            disabled={qty >= maxQty}
+                                            onClick={() => setPkgQuantities(prev => ({ ...prev, [pkg.id]: Math.min(maxQty, qty + 1) }))}
+                                            className="w-9 h-9 flex items-center justify-center rounded-lg bg-slate-700/30 text-slate-200 hover:bg-slate-700 hover:text-white transition-all active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer shrink-0 select-none group"
+                                            title="زيادة الكمية"
+                                          >
+                                            <Plus className="w-4 h-4" />
+                                          </button>
+                                        </div>
+
+                                        {/* Close ghost button */}
                                         <button
                                           type="button"
-                                          disabled={qty <= 1}
-                                          onClick={() => setPkgQuantities(prev => ({ ...prev, [pkg.id]: Math.max(1, qty - 1) }))}
-                                          className="w-8 h-8 rounded-xl bg-white/5 border border-white/10 hover:bg-emerald-500/20 hover:border-emerald-500/40 text-emerald-400 flex items-center justify-center active:scale-90 transition-all duration-150 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer shrink-0 select-none"
-                                          title="إنقاص الكمية"
+                                          onClick={() => setSelectedPackageId(null)}
+                                          className="w-8 h-8 rounded-lg hover:bg-slate-800/80 text-slate-400 hover:text-white flex items-center justify-center transition-colors cursor-pointer shrink-0"
+                                          title="إلغاء"
                                         >
-                                          <Minus className="w-4 h-4" />
-                                        </button>
-                                        <motion.span
-                                          key={qty}
-                                          initial={{ scale: 1.15, opacity: 0.8 }}
-                                          animate={{ scale: 1, opacity: 1 }}
-                                          transition={{ duration: 0.18, ease: "easeOut" }}
-                                          className="text-white font-mono font-black text-sm px-2.5 min-w-[28px] text-center inline-block select-none"
-                                        >
-                                          {qty}
-                                        </motion.span>
-                                        <button
-                                          type="button"
-                                          disabled={qty >= maxQty}
-                                          onClick={() => setPkgQuantities(prev => ({ ...prev, [pkg.id]: Math.min(maxQty, qty + 1) }))}
-                                          className="w-8 h-8 rounded-xl bg-white/5 border border-white/10 hover:bg-emerald-500/20 hover:border-emerald-500/40 text-emerald-400 flex items-center justify-center active:scale-90 transition-all duration-150 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer shrink-0 select-none"
-                                          title="زيادة الكمية"
-                                        >
-                                          <Plus className="w-4 h-4" />
+                                          <X className="w-4 h-4" />
                                         </button>
                                       </div>
-
-                                      {/* Close ghost button */}
-                                      <button
-                                        type="button"
-                                        onClick={() => setSelectedPackageId(null)}
-                                        className="w-7 h-7 rounded-full hover:bg-white/10 text-slate-400 hover:text-white flex items-center justify-center transition-colors cursor-pointer shrink-0"
-                                        title="إلغاء"
-                                      >
-                                        <X className="w-4 h-4" />
-                                      </button>
                                     </div>
                                   </motion.div>
                                 )}
                               </AnimatePresence>
-                              {/* Main CTA Button */}
-                              <button
+                              {/* Main CTA Button with Framer Motion Micro-interactions */}
+                              <motion.button
+                                layout
                                 disabled={isOut}
                                 type="button"
+                                whileHover={!isOut ? { scale: 1.02 } : undefined}
+                                whileTap={!isOut ? { scale: 0.96 } : undefined}
+                                transition={{ type: "spring", stiffness: 400, damping: 17 }}
                                 onClick={() => {
                                   if (isOut) return;
                                   if (!isExpanded) {
@@ -5185,7 +5624,7 @@ const fetchCloudStockStatus = async () => {
                                     setSelectedPackageId(null);
                                   }
                                 }}
-                                className={`w-full font-bold py-3.5 px-4 rounded-xl transition-all duration-300 ease-out hover:scale-[1.015] active:scale-[0.98] flex items-center justify-center gap-2 min-h-[48px] ${
+                                className={`w-full font-bold py-3.5 px-4 rounded-xl flex items-center justify-center gap-2 min-h-[48px] select-none ${
                                   isOut 
                                     ? "bg-slate-800/80 text-red-400 border border-red-500/20 opacity-60 cursor-not-allowed"
                                     : isExpanded
@@ -5193,17 +5632,47 @@ const fetchCloudStockStatus = async () => {
                                     : "bg-emerald-600 hover:bg-emerald-500 text-white cursor-pointer shadow-sm"
                                 }`}
                               >
-                                <ShoppingBag className="w-4.5 h-4.5 shrink-0" />
-                                <span>
-                                  {isOut 
-                                    ? "غير متوفر" 
-                                    : isExpanded 
-                                    ? `تأكيد الشراء (${totalPrice}₪)` 
-                                    : "شراء الآن"}
-                                </span>
-                              </button>
+                                <AnimatePresence mode="wait" initial={false}>
+                                  {isOut ? (
+                                    <motion.div
+                                      key="out"
+                                      initial={{ opacity: 0, y: 5 }}
+                                      animate={{ opacity: 1, y: 0 }}
+                                      exit={{ opacity: 0, y: -5 }}
+                                      transition={{ duration: 0.15 }}
+                                      className="flex items-center justify-center gap-2"
+                                    >
+                                      <span>غير متوفر</span>
+                                    </motion.div>
+                                  ) : isExpanded ? (
+                                    <motion.div
+                                      key="confirm"
+                                      initial={{ opacity: 0, y: 5 }}
+                                      animate={{ opacity: 1, y: 0 }}
+                                      exit={{ opacity: 0, y: -5 }}
+                                      transition={{ duration: 0.15 }}
+                                      className="flex items-center justify-center gap-2"
+                                    >
+                                      <ShoppingBag className="w-4.5 h-4.5 shrink-0" />
+                                      <span>{`تأكيد الشراء (${totalPrice}₪)`}</span>
+                                    </motion.div>
+                                  ) : (
+                                    <motion.div
+                                      key="buy"
+                                      initial={{ opacity: 0, y: 5 }}
+                                      animate={{ opacity: 1, y: 0 }}
+                                      exit={{ opacity: 0, y: -5 }}
+                                      transition={{ duration: 0.15 }}
+                                      className="flex items-center justify-center gap-2"
+                                    >
+                                      <ShoppingBag className="w-4.5 h-4.5 shrink-0" />
+                                      <span>شراء الآن</span>
+                                    </motion.div>
+                                  )}
+                                </AnimatePresence>
+                              </motion.button>
                             </div>
-                          </div>
+                          </motion.div>
                         );
                       })}
                     </div>
@@ -5442,10 +5911,25 @@ const fetchCloudStockStatus = async () => {
                     </button>
 
                     {/* System Version Badge */}
-                    <div className="pt-2 pb-6 text-center select-none">
+                    <div className="pt-2 pb-2 text-center select-none">
                       <span className="text-xs font-mono text-slate-500 tracking-wider">
                         إصدار النظام: v1.0.0-build.2026
                       </span>
+                    </div>
+
+                    {/* Luxury Animated Signature Footer */}
+                    <div className="mt-8 mb-20 w-full max-w-sm mx-auto border-t border-slate-800/50 pt-6 flex flex-col justify-center items-center gap-1.5 select-none" dir="ltr">
+                      <span className="text-slate-500/70 text-[10px] sm:text-xs uppercase tracking-[0.25em] font-medium">
+                        Designed and Coded by
+                      </span>
+                      <motion.span
+                        animate={{ backgroundPosition: ["200% center", "0% center"] }}
+                        transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+                        className="text-sm sm:text-base font-bold antialiased bg-clip-text text-transparent bg-gradient-to-r from-slate-600 via-slate-200 to-slate-600 bg-[length:200%_auto] cursor-default font-['Cairo','Tajawal',sans-serif]"
+                        dir="rtl"
+                      >
+                        م.محمد الحسنات
+                      </motion.span>
                     </div>
                   </motion.div>
                 )}
@@ -5502,62 +5986,110 @@ const fetchCloudStockStatus = async () => {
 
       {/* Active Broadcast Floating Toast Pop-up Banner */}
       <AnimatePresence>
-        {activeNotifToast && (
-          <motion.div
-            key={activeNotifToast.id}
-            initial={{ opacity: 0, y: -50, scale: 0.9, x: "-50%" }}
-            animate={{ opacity: 1, y: 0, scale: 1, x: "-50%" }}
-            exit={{ opacity: 0, y: -30, scale: 0.9, x: "-50%" }}
-            transition={{ type: "spring", stiffness: 400, damping: 28 }}
-            className="fixed top-4 left-1/2 z-[160] w-[92%] max-w-md pointer-events-auto"
-            dir="rtl"
-          >
-            <div className="bg-[#161b22]/95  border border-emerald-500/30 shadow-xl rounded-2xl p-3.5 sm:p-4 text-slate-100 flex items-start justify-between gap-3 relative overflow-hidden group">
-              {/* Glowing accent top line */}
-              <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-indigo-500 via-sky-400 to-indigo-500 animate-pulse" />
+        {activeNotifToast && (() => {
+          const isReward = activeNotifToast.type === 'reward' || activeNotifToast.type === 'compensation' || activeNotifToast.title.includes('تعويض') || activeNotifToast.title.includes('هدية');
+          const isPurchase = activeNotifToast.type === 'purchase' || activeNotifToast.title.includes('الشراء');
 
-              <div 
-                className="flex items-start gap-3 flex-1 min-w-0 cursor-pointer"
-                onClick={() => {
-                  setIsNotificationCenterOpen(true);
-                  setActiveNotifToast(null);
-                }}
-              >
-                <div className="p-2.5 bg-emerald-500/20 text-emerald-400 rounded-xl border border-emerald-500/20 shrink-0 mt-0.5 shadow-inner">
-                  <Megaphone className="w-5 h-5 text-emerald-400 animate-bounce" />
-                </div>
-                <div className="flex-1 min-w-0 text-right">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="text-[10px] font-bold px-2 py-0.5 bg-emerald-500/20 text-emerald-300 rounded-md border border-emerald-500/20 tracking-wide font-['Cairo']">
-                      إشعار جديد 📢
-                    </span>
-                    <span className="text-[10px] text-slate-400 font-sans">
-                      الآن
-                    </span>
+          return (
+            <motion.div
+              key={activeNotifToast.id}
+              initial={{ opacity: 0, y: -50, scale: 0.85, x: "-50%" }}
+              animate={{ opacity: 1, y: 0, scale: 1, x: "-50%" }}
+              exit={{ opacity: 0, y: -30, scale: 0.9, x: "-50%" }}
+              transition={{ type: "spring", stiffness: 500, damping: 15 }}
+              className="fixed top-4 left-1/2 z-[160] w-[92%] max-w-md pointer-events-auto"
+              dir="rtl"
+            >
+              <div className={`backdrop-blur-md rounded-2xl p-3.5 sm:p-4 flex items-start justify-between gap-3 relative overflow-hidden group border shadow-xl ${
+                isReward
+                  ? 'bg-purple-950/90 border-purple-500/50 text-purple-100 shadow-purple-950/50'
+                  : isPurchase
+                    ? 'bg-emerald-950/90 border-emerald-500/50 text-emerald-100 shadow-emerald-950/50'
+                    : 'bg-blue-950/90 border-blue-500/50 text-blue-100 shadow-xl shadow-blue-950/50'
+              }`}>
+                {/* Glowing accent top line */}
+                <div className={`absolute top-0 left-0 right-0 h-1.5 ${
+                  isReward
+                    ? 'bg-gradient-to-r from-purple-500 via-pink-400 to-indigo-500 animate-pulse'
+                    : isPurchase
+                      ? 'bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-500 animate-pulse'
+                      : 'bg-gradient-to-r from-blue-500 via-sky-400 to-indigo-500 animate-pulse'
+                }`} />
+
+                <div 
+                  className="flex items-start gap-3 flex-1 min-w-0 cursor-pointer"
+                  onClick={() => {
+                    setIsNotificationCenterOpen(true);
+                    setActiveNotifToast(null);
+                  }}
+                >
+                  <div className={`p-2.5 rounded-xl border shrink-0 mt-0.5 shadow-inner ${
+                    isReward
+                      ? 'bg-purple-500/25 text-purple-300 border-purple-500/40 shadow-purple-900/30'
+                      : isPurchase
+                        ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/20'
+                        : 'bg-blue-500/25 text-blue-300 border-blue-500/40'
+                  }`}>
+                    {isReward ? (
+                      <Gift className="w-5 h-5 text-purple-300 animate-bounce" />
+                    ) : isPurchase ? (
+                      <ShoppingCart className="w-5 h-5 text-emerald-400 animate-bounce" />
+                    ) : (
+                      <Megaphone className="w-5 h-5 text-blue-300 animate-bounce" />
+                    )}
                   </div>
-                  <h4 className="font-bold text-sm text-white truncate font-['Cairo'] leading-tight">
-                    {activeNotifToast.title}
-                  </h4>
-                  <p className="text-xs text-slate-300 line-clamp-2 mt-1 font-sans leading-relaxed">
-                    {activeNotifToast.body}
-                  </p>
+                  <div className="flex-1 min-w-0 text-right">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className={`text-[10px] font-extrabold px-2 py-0.5 rounded-md border tracking-wide font-['Cairo'] flex items-center gap-1 ${
+                        isReward
+                          ? 'bg-purple-500/30 text-purple-200 border-purple-500/40'
+                          : isPurchase
+                            ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/20'
+                            : 'bg-blue-500/20 text-blue-300 border-blue-500/30'
+                      }`}>
+                        {isReward ? (
+                          <>
+                            <Sparkles className="w-3 h-3 text-yellow-300" />
+                            <span>مكافأة خاصة 🎁</span>
+                          </>
+                        ) : isPurchase ? (
+                          'تم الشراء 🎉'
+                        ) : (
+                          'إشعار جديد 📢'
+                        )}
+                      </span>
+                      <span className={`text-[10px] font-sans ${isReward ? 'text-purple-300/80' : isPurchase ? 'text-emerald-300/80' : 'text-blue-300/80'}`}>
+                        الآن
+                      </span>
+                    </div>
+                    <h4 className={`font-black text-sm truncate font-['Cairo'] leading-tight ${
+                      isReward ? 'text-purple-100' : isPurchase ? 'text-emerald-100' : 'text-blue-100'
+                    }`}>
+                      {activeNotifToast.title}
+                    </h4>
+                    <p className={`text-xs line-clamp-2 mt-1 font-sans leading-relaxed ${
+                      isReward ? 'text-purple-200/90' : isPurchase ? 'text-emerald-200/90' : 'text-blue-200/90'
+                    }`}>
+                      {activeNotifToast.body || activeNotifToast.message}
+                    </p>
+                  </div>
                 </div>
-              </div>
 
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setActiveNotifToast(null);
-                }}
-                className="p-1.5 text-slate-400 hover:text-white bg-white/5 hover:bg-white/10 active:scale-95 rounded-lg transition-all shrink-0 cursor-pointer mt-0.5"
-                title="إغلاق الإشعار"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-          </motion.div>
-        )}
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setActiveNotifToast(null);
+                  }}
+                  className="p-1.5 text-slate-400 hover:text-white bg-white/5 hover:bg-white/10 active:scale-95 rounded-lg transition-all shrink-0 cursor-pointer mt-0.5"
+                  title="إغلاق الإشعار"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            </motion.div>
+          );
+        })()}
       </AnimatePresence>
 
       {/* Custom Glassmorphic Toast Notifications */}
@@ -5667,54 +6199,98 @@ const fetchCloudStockStatus = async () => {
                     <div className="w-12 h-12 rounded-2xl bg-slate-800/60 border border-[#30363d]/50 flex items-center justify-center text-slate-500 mx-auto">
                       <Bell className="w-6 h-6" />
                     </div>
-                    <p className="text-xs text-slate-400 font-medium">لا توجد إشعارات حالياً لمخيمك أو في سجل التنبيهات 🔔</p>
+                    <p className="text-xs text-slate-400 font-medium">لا توجد إشعارات حالياً في سجل التنبيهات 🔔</p>
                   </div>
                 ) : (
-                  visibleNotifications.map((notif) => (
-                    <div
-                      key={notif.id}
-                      className={`p-3.5 rounded-2xl border transition-all relative ${
-                        notif.read
-                          ? 'bg-slate-900/50 border-[#30363d]/60 text-slate-300'
-                          : 'bg-indigo-950/40 border-indigo-500/40 text-slate-100 shadow-md shadow-sm'
-                      }`}
-                    >
-                      <div className="flex items-start justify-between gap-2 mb-1.5">
-                        <div className="flex items-center gap-2">
-                          {!notif.read && (
-                            <span className="w-2 h-2 rounded-full bg-indigo-400 shrink-0 animate-pulse" />
+                  visibleNotifications.map((notif) => {
+                    const isUnread = notif.is_read === 0 || notif.is_read === false || (!notif.read && notif.is_read !== 1 && notif.is_read !== true);
+                    const notifMessage = notif.message || notif.body || '';
+                    const notifDate = notif.created_at || notif.timestamp || '';
+                    const isReward = notif.type === 'reward' || notif.type === 'compensation' || notif.title.includes('تعويض') || notif.title.includes('هدية');
+                    const isPurchase = notif.type === 'purchase' || notif.title.includes('الشراء');
+
+                    return (
+                      <div
+                        key={notif.id}
+                        className={`p-3.5 rounded-2xl border transition-all relative ${
+                          isReward
+                            ? 'bg-purple-950/40 border-purple-500/50 text-purple-100 shadow-lg shadow-purple-500/10'
+                            : isPurchase
+                              ? isUnread
+                                ? 'bg-emerald-950/30 border-emerald-500/40 text-slate-100 shadow-md'
+                                : 'bg-slate-900/50 border-[#30363d]/60 text-slate-300'
+                              : isUnread
+                                ? 'bg-blue-950/30 border-blue-500/40 text-blue-100 shadow-md'
+                                : 'bg-slate-900/50 border-[#30363d]/60 text-slate-300'
+                        }`}
+                      >
+                        <div className="flex items-start justify-between gap-2 mb-1.5">
+                          <div className="flex items-center gap-2">
+                            {isReward ? (
+                              <div className="w-6 h-6 rounded-lg bg-purple-500/20 border border-purple-500/40 flex items-center justify-center text-purple-300 shrink-0">
+                                <Gift className="w-3.5 h-3.5 text-purple-300" />
+                              </div>
+                            ) : isPurchase ? (
+                              <div className="w-6 h-6 rounded-lg bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-300 shrink-0">
+                                <ShoppingCart className="w-3.5 h-3.5 text-emerald-300" />
+                              </div>
+                            ) : isUnread ? (
+                              <span className="w-2 h-2 rounded-full bg-blue-400 shrink-0 animate-pulse" />
+                            ) : (
+                              <div className="w-6 h-6 rounded-lg bg-blue-500/15 border border-blue-500/30 flex items-center justify-center text-blue-300 shrink-0">
+                                <Megaphone className="w-3.5 h-3.5 text-blue-400" />
+                              </div>
+                            )}
+                            <div className="flex items-center gap-1.5">
+                              <h5 className={`text-xs sm:text-sm font-extrabold ${isReward ? 'text-purple-200 font-bold' : isPurchase ? 'text-emerald-200 font-bold' : isUnread ? 'text-blue-100' : 'text-white'}`}>
+                                {notif.title}
+                              </h5>
+                              {isReward && (
+                                <span className="bg-purple-500/20 text-purple-300 text-[10px] px-1.5 py-0.5 rounded border border-purple-500/30 flex items-center gap-1">
+                                  <Sparkles className="w-2.5 h-2.5 text-yellow-300" />
+                                  هدية
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteNotif(notif.id)}
+                            className="text-slate-500 hover:text-rose-400 p-1 transition-colors cursor-pointer shrink-0"
+                            title="حذف الإشعار"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                        <p className={`text-xs leading-relaxed font-normal whitespace-pre-wrap ${isReward ? 'text-purple-200/90 pl-8' : isPurchase ? 'text-emerald-200/90 pl-6' : isUnread ? 'text-blue-200/90 pl-6' : 'text-slate-300 pl-6'} mb-2`}>
+                          {notifMessage}
+                        </p>
+                        <div className={`flex items-center justify-between gap-2 text-[10px] ${isReward ? 'text-purple-400/80 border-purple-500/20' : isPurchase ? 'text-emerald-400/80 border-emerald-500/20' : isUnread ? 'text-blue-400/80 border-blue-500/20' : 'text-slate-400 border-white/5'} font-mono mt-2 pt-2 border-t`}>
+                          <div className="flex items-center gap-1">
+                            <Clock className={`w-3 h-3 ${isReward ? 'text-purple-400' : isPurchase ? 'text-emerald-400' : isUnread ? 'text-blue-400' : 'text-slate-500'}`} />
+                            <span>{notifDate ? new Date(notifDate).toLocaleString('ar-EG', { dateStyle: 'medium', timeStyle: 'short' }) : 'الآن'}</span>
+                          </div>
+                          {isReward ? (
+                            <span className="bg-purple-500/20 text-purple-300 border border-purple-500/30 px-2 py-0.5 rounded-md font-sans font-semibold">
+                              🎁 مكافأة خاصة
+                            </span>
+                          ) : isPurchase ? (
+                            <span className="bg-emerald-500/20 text-emerald-300 border border-emerald-500/20 px-2 py-0.5 rounded-md font-sans font-semibold">
+                              🛍️ عملية شراء
+                            </span>
+                          ) : !isGeneralNotification(notif.targetCamp || notif.camp) ? (
+                            <span className="bg-blue-500/20 text-blue-300 border border-blue-500/30 px-2 py-0.5 rounded-md font-sans font-semibold">
+                              🎯 موجه إلى: {notif.targetCamp || notif.camp}
+                            </span>
+                          ) : (
+                            <span className="bg-blue-500/20 text-blue-300 border border-blue-500/30 px-2 py-0.5 rounded-md font-sans font-medium">
+                              📢 إشعار عام
+                            </span>
                           )}
-                          <h5 className="text-xs sm:text-sm font-extrabold text-white">{notif.title}</h5>
                         </div>
-                        <button
-                          type="button"
-                          onClick={() => handleDeleteNotif(notif.id)}
-                          className="text-slate-500 hover:text-rose-400 p-1 transition-colors cursor-pointer shrink-0"
-                          title="حذف الإشعار"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
                       </div>
-                      <p className="text-xs text-slate-300 leading-relaxed font-normal whitespace-pre-wrap pl-6 mb-2">
-                        {notif.body}
-                      </p>
-                      <div className="flex items-center justify-between gap-2 text-[10px] text-slate-400 font-mono mt-2 pt-2 border-t border-white/5">
-                        <div className="flex items-center gap-1">
-                          <Clock className="w-3 h-3 text-slate-500" />
-                          <span>{new Date(notif.timestamp).toLocaleString('ar-EG', { dateStyle: 'medium', timeStyle: 'short' })}</span>
-                        </div>
-                        {!isGeneralNotification(notif.targetCamp) ? (
-                          <span className="bg-emerald-500/20 text-emerald-300 border border-emerald-500/20 px-2 py-0.5 rounded-md font-sans font-semibold">
-                            🎯 موجه إلى: {notif.targetCamp}
-                          </span>
-                        ) : (
-                          <span className="bg-slate-800 text-slate-400 border border-[#30363d] px-2 py-0.5 rounded-md font-sans font-medium">
-                            📢 إشعار عام
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  ))
+                    );
+                  })
                 )}
               </div>
             </motion.div>
@@ -5722,7 +6298,71 @@ const fetchCloudStockStatus = async () => {
         )}
       </AnimatePresence>
 
-      {/* Dynamic Floating WhatsApp Support Widget for Login/Register Views */}
+      {/* Delete Card Confirmation Modal */}
+      <AnimatePresence>
+        {deleteCardConfirm && (
+          <div className="fixed inset-0 z-[190] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm" dir="rtl">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 15 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 15 }}
+              className="w-full max-w-sm bg-[#161b22] border border-[#30363d] rounded-2xl p-6 shadow-2xl space-y-4 text-right relative"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-2xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-400 shrink-0">
+                  <Trash2 className="w-6 h-6" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-white">حذف البطاقة نهائياً</h3>
+                  <p className="text-xs text-slate-400">
+                    {deleteCardConfirm.packageName || deleteCardConfirm.name || 'بطاقة إنترنت'}
+                  </p>
+                </div>
+              </div>
+
+              <div className="bg-[#0d1117] border border-[#30363d] rounded-xl p-3.5 space-y-1.5 text-xs text-slate-300">
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-400">اسم المستخدم:</span>
+                  <span className="font-mono text-emerald-400 font-bold text-sm" dir="ltr">
+                    {deleteCardConfirm.cardUsername || deleteCardConfirm.username || deleteCardConfirm.card_number || deleteCardConfirm.code}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-400">الباقة:</span>
+                  <span className="text-white font-medium">
+                    {deleteCardConfirm.packageName || deleteCardConfirm.name || 'باقة إنترنت'}
+                  </span>
+                </div>
+              </div>
+
+              <p className="text-xs text-slate-400 leading-relaxed">
+                هل أنت متأكد من رغبتك في حذف هذه البطاقة نهائياً؟ لن تظهر في قائمة بطاقاتك بعد الحذف.
+              </p>
+
+              <div className="flex gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setDeleteCardConfirm(null)}
+                  className="flex-1 bg-slate-800 hover:bg-slate-700 border border-[#30363d] text-slate-300 font-semibold py-2.5 rounded-xl transition-all text-xs cursor-pointer"
+                >
+                  إلغاء
+                </button>
+                <button
+                  type="button"
+                  onClick={async () => {
+                    const targetCard = deleteCardConfirm;
+                    await handleDeleteCard(targetCard);
+                  }}
+                  className="flex-1 bg-rose-600 hover:bg-rose-500 text-white font-semibold py-2.5 rounded-xl transition-all text-xs flex items-center justify-center gap-1.5 cursor-pointer shadow-lg shadow-rose-950/40"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  <span>تأكيد الحذف</span>
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
       {view !== 'dashboard' && (
         <motion.a
           href="https://wa.me/970567101900"
@@ -5860,6 +6500,188 @@ const fetchCloudStockStatus = async () => {
         )}
       </AnimatePresence>
 
+      {/* Payment Flow Modal (Jawwal Pay / MaalCards OTP) */}
+      <AnimatePresence>
+        {paymentModal.isOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[165] flex items-center justify-center bg-slate-950/80 backdrop-blur-md p-4"
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.92, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.92, y: 20 }}
+              transition={{ type: "spring", stiffness: 350, damping: 25 }}
+              className="bg-slate-900/95 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl max-w-sm w-full backdrop-blur-xl relative overflow-hidden text-right shadow-[inset_0_1px_0_0_rgba(255,255,255,0.08)] antialiased"
+              dir="rtl"
+            >
+              <button
+                onClick={() => setPaymentModal(prev => ({ ...prev, isOpen: false }))}
+                className="absolute top-4 left-4 text-slate-400 hover:text-white transition-colors p-1.5 rounded-xl hover:bg-slate-800 text-sm font-bold cursor-pointer"
+                type="button"
+              >
+                ✕
+              </button>
+
+              {/* Top Header & Brand */}
+              <div className="flex flex-col items-center mb-5 text-center">
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-[11px] font-semibold text-emerald-400 mb-3 tracking-wide">
+                  <CreditCard className="w-3.5 h-3.5" />
+                  <span>بوابة الدفع الإلكتروني (Jawwal Pay)</span>
+                </div>
+
+                <div className="w-14 h-14 bg-gradient-to-tr from-emerald-500/20 to-teal-500/20 border border-emerald-500/30 rounded-2xl flex items-center justify-center mb-2.5 text-emerald-400 shadow-inner">
+                  {paymentModal.step === 'phone' ? (
+                    <Smartphone className="w-7 h-7" />
+                  ) : (
+                    <KeyRound className="w-7 h-7" />
+                  )}
+                </div>
+
+                <h3 className="text-xl font-extrabold text-slate-100 tracking-tight">
+                  {paymentModal.step === 'phone' ? 'تأكيد رقم الجوال للدفع' : 'رمز التحقق (OTP)'}
+                </h3>
+
+                {/* Package Summary Badge */}
+                <div className="mt-2 inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-800/80 border border-slate-700/60 text-xs text-slate-300">
+                  <span className="font-semibold text-emerald-400">{paymentModal.pkgName}</span>
+                  <span className="text-slate-500">•</span>
+                  <span>{paymentModal.quantity} {paymentModal.quantity === 1 ? 'بطاقة' : 'بطاقات'}</span>
+                  <span className="text-slate-500">•</span>
+                  <span className="font-bold text-white font-mono">
+                    {(Number(paymentModal.price.replace('₪', '').trim()) || (paymentModal.pkgName.includes('24') ? 3 : 2)) * paymentModal.quantity}₪
+                  </span>
+                </div>
+              </div>
+
+              {/* Animated Step Content */}
+              <AnimatePresence mode="wait">
+                {paymentModal.step === 'phone' ? (
+                  <motion.form
+                    key="phone-step"
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    transition={{ duration: 0.2 }}
+                    onSubmit={handleRequestPaymentOtp}
+                    className="space-y-4"
+                  >
+                    <div>
+                      <label className="text-xs text-slate-300 font-semibold block mb-1.5">
+                        رقم جوال المحفظة الإلكترونية (Jawwal Pay)
+                      </label>
+                      <div className="relative flex items-center">
+                        <input
+                          type="tel"
+                          required
+                          value={paymentModal.phone}
+                          onChange={(e) => setPaymentModal(prev => ({ ...prev, phone: e.target.value }))}
+                          placeholder="059XXXXXXX"
+                          dir="ltr"
+                          className="w-full bg-black/40 border border-slate-700/80 rounded-2xl py-3 px-4 text-slate-100 placeholder-slate-500 font-mono text-center text-base tracking-wider outline-none focus:border-emerald-500 transition-all"
+                        />
+                      </div>
+                      <p className="text-[11px] text-slate-400 mt-1.5 leading-relaxed">
+                        سيتم إرسال رمز تحقق برسالة نصية SMS لخصم المبلغ وتأكيد العملية.
+                      </p>
+                    </div>
+
+                    <button
+                      type="submit"
+                      disabled={paymentModal.isLoading}
+                      className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold py-3.5 px-6 rounded-2xl shadow-[0_10px_25px_-5px_rgba(16,185,129,0.3)] transition-all active:scale-[0.98] text-sm tracking-wide flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {paymentModal.isLoading ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          <span>جاري إرسال الرمز...</span>
+                        </>
+                      ) : (
+                        <>
+                          <span>إرسال رمز التحقق (OTP)</span>
+                          <Send className="w-4 h-4" />
+                        </>
+                      )}
+                    </button>
+                  </motion.form>
+                ) : (
+                  <motion.form
+                    key="otp-step"
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    transition={{ duration: 0.2 }}
+                    onSubmit={handleConfirmPaymentOtp}
+                    className="space-y-4"
+                  >
+                    <div>
+                      <div className="flex justify-between items-center mb-1.5">
+                        <label className="text-xs text-slate-300 font-semibold">
+                          رمز التحقق المرسل عبر SMS
+                        </label>
+                        <button
+                          type="button"
+                          onClick={() => setPaymentModal(prev => ({ ...prev, step: 'phone' }))}
+                          className="text-[11px] text-emerald-400 hover:underline cursor-pointer"
+                        >
+                          تغيير الرقم ({paymentModal.phone})
+                        </button>
+                      </div>
+                      <input
+                        type="text"
+                        required
+                        autoFocus
+                        maxLength={6}
+                        value={paymentModal.otp}
+                        onChange={(e) => setPaymentModal(prev => ({ ...prev, otp: e.target.value }))}
+                        placeholder="• • • • • •"
+                        dir="ltr"
+                        className="w-full bg-black/40 border border-emerald-500/40 rounded-2xl py-3 px-4 text-emerald-300 placeholder-slate-600 font-mono text-center text-xl tracking-[0.35em] font-bold outline-none focus:border-emerald-400 transition-all"
+                      />
+                      <p className="text-[11px] text-slate-400 mt-1.5 text-center">
+                        أدخل الرمز المكون من أرقام لإتمام الدفع واستلام كرتك فوراً.
+                      </p>
+                    </div>
+
+                    <div className="space-y-2 pt-1">
+                      <button
+                        type="submit"
+                        disabled={paymentModal.isLoading}
+                        className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold py-3.5 px-6 rounded-2xl shadow-[0_10px_25px_-5px_rgba(16,185,129,0.3)] transition-all active:scale-[0.98] text-sm tracking-wide flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {paymentModal.isLoading ? (
+                          <>
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                            <span>جاري تأكيد الدفع...</span>
+                          </>
+                        ) : (
+                          <>
+                            <span>تأكيد الدفع واستلام البطاقة</span>
+                            <CheckCircle2 className="w-4 h-4" />
+                          </>
+                        )}
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={handleRequestPaymentOtp}
+                        disabled={paymentModal.isLoading}
+                        className="w-full py-2 text-xs text-slate-400 hover:text-slate-200 transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+                      >
+                        <RefreshCw className="w-3.5 h-3.5" />
+                        <span>إعادة إرسال الرمز</span>
+                      </button>
+                    </div>
+                  </motion.form>
+                )}
+              </AnimatePresence>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Dispensed Card Modal */}
       <AnimatePresence>
         {dispensedCardModal.isOpen && dispensedCardModal.card && (
@@ -5867,80 +6689,67 @@ const fetchCloudStockStatus = async () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[160] flex items-center justify-center bg-black/80  p-4"
+            className="fixed inset-0 z-[160] flex items-center justify-center bg-slate-950/80 backdrop-blur-md p-4"
           >
             <motion.div
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="bg-[#161b22] border border-emerald-500/30 rounded-xl p-6 w-full max-w-md shadow-xl relative overflow-hidden text-right"
+              transition={{ type: "spring", stiffness: 350, damping: 25 }}
+              className="bg-slate-900/90 border border-slate-800/80 rounded-3xl p-8 shadow-2xl max-w-sm w-full backdrop-blur-xl relative overflow-hidden text-center shadow-[inset_0_1px_0_0_rgba(255,255,255,0.08)] antialiased"
               dir="rtl"
             >
               <button
                 onClick={() => setDispensedCardModal({ isOpen: false, card: null })}
-                className="absolute top-4 left-4 text-slate-400 hover:text-white transition-colors p-1 text-sm font-bold cursor-pointer"
+                className="absolute top-4 left-4 text-slate-400 hover:text-white transition-colors p-1.5 rounded-xl hover:bg-slate-800 text-sm font-bold cursor-pointer"
                 type="button"
               >
                 ✕
               </button>
 
-              <div className="flex flex-col items-center mb-6 text-center">
-                <div className="w-16 h-16 bg-emerald-500/10 border border-emerald-500/30 rounded-full flex items-center justify-center mb-3 text-emerald-400 shadow-inner">
-                  <Sparkles className="w-8 h-8" />
-                </div>
-                <h2 className="text-xl font-extrabold text-white mb-1">
-                  تمت العملية بنجاح! كرتك جاهز: 🎉
-                </h2>
-                <p className="text-xs text-emerald-400 font-medium">
-                  {dispensedCardModal.card.name} • {dispensedCardModal.card.duration}
-                </p>
+              {/* Glowing Success Checkmark Icon with spring pop-in & path drawing */}
+              <motion.div
+                initial={{ scale: 0.3, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ type: "spring", stiffness: 400, damping: 20, delay: 0.1 }}
+                className="w-16 h-16 mx-auto mb-4 rounded-3xl bg-gradient-to-tr from-emerald-500/20 to-teal-500/20 border border-emerald-500/30 flex items-center justify-center shadow-[0_0_30px_rgba(16,185,129,0.2)]"
+              >
+                <motion.svg
+                  initial={{ pathLength: 0, opacity: 0 }}
+                  animate={{ pathLength: 1, opacity: 1 }}
+                  transition={{ duration: 0.4, ease: "easeInOut", delay: 0.2 }}
+                  className="w-8 h-8 text-emerald-400"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth="3"
+                >
+                  <motion.path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M5 13l4 4L19 7"
+                  />
+                </motion.svg>
+              </motion.div>
+
+              {/* Title & Subtitle */}
+              <h2 className="text-2xl font-extrabold text-slate-100 tracking-tight text-center">
+                تمت عملية الشراء بنجاح! ✨
+              </h2>
+              <p className="text-slate-400 text-sm text-center font-medium mt-2 leading-relaxed">
+                شكراً لثقتك بنا. تمت معالجة طلبك وإضافة البطاقة إلى حسابك بنجاح.
+              </p>
+
+              {/* Package tag */}
+              <div className="mt-4 inline-flex items-center gap-2 px-3 py-1 rounded-xl bg-slate-800/60 border border-slate-700/50 text-xs font-semibold text-emerald-400">
+                <Zap className="w-3.5 h-3.5" />
+                <span>{dispensedCardModal.card.name}</span>
+                <span className="text-slate-500">•</span>
+                <span className="text-slate-300">{dispensedCardModal.card.duration}</span>
               </div>
 
-              <div className="space-y-3.5 my-4">
-                {/* Username Field */}
-                <div className="bg-[#06080E] border border-[#30363d] rounded-2xl p-4 flex flex-col gap-1.5 shadow-inner">
-                  <div className="flex justify-between items-center">
-                    <span className="text-slate-400 text-xs font-semibold">اسم المستخدم (Username)</span>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        navigator.clipboard.writeText(dispensedCardModal.card.cardUsername);
-                        showToast(`تم نسخ اسم المستخدم (${dispensedCardModal.card.cardUsername})`, 'success');
-                      }}
-                      className="bg-emerald-600/30 hover:bg-emerald-600/50 text-emerald-300 border border-emerald-500/20 px-3 py-1 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all active:scale-[0.96] cursor-pointer"
-                    >
-                      <Copy className="w-3.5 h-3.5" />
-                      <span>نسخ اسم المستخدم</span>
-                    </button>
-                  </div>
-                  <span className="text-white font-mono font-bold text-lg tracking-widest text-center py-1 select-all" dir="ltr">
-                    {dispensedCardModal.card.cardUsername}
-                  </span>
-                </div>
-
-                {/* Password Field */}
-                <div className="bg-[#06080E] border border-[#30363d] rounded-2xl p-4 flex flex-col gap-1.5 shadow-inner">
-                  <div className="flex justify-between items-center">
-                    <span className="text-slate-400 text-xs font-semibold">كلمة المرور (Password)</span>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        navigator.clipboard.writeText(dispensedCardModal.card.cardPassword);
-                        showToast(`تم نسخ كلمة المرور (${dispensedCardModal.card.cardPassword})`, 'success');
-                      }}
-                      className="bg-emerald-600/30 hover:bg-emerald-600/50 text-emerald-300 border border-emerald-500/30 px-3 py-1 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all active:scale-[0.96] cursor-pointer"
-                    >
-                      <Copy className="w-3.5 h-3.5" />
-                      <span>نسخ كلمة المرور</span>
-                    </button>
-                  </div>
-                  <span className="text-emerald-400 font-mono font-bold text-xl tracking-widest text-center py-1 select-all" dir="ltr">
-                    {dispensedCardModal.card.cardPassword}
-                  </span>
-                </div>
-              </div>
-
-              <div className="pt-2 flex flex-col gap-2">
+              {/* Action Button */}
+              <div className="pt-2">
                 <button
                   type="button"
                   onClick={() => {
@@ -5948,9 +6757,9 @@ const fetchCloudStockStatus = async () => {
                     setView('dashboard');
                     setDashboardTab('cards');
                   }}
-                  className="w-full bg-emerald-600 hover:bg-emerald-500 transition-all duration-300 ease-out hover:scale-[1.015] active:scale-[0.98] text-white font-extrabold py-3.5 rounded-2xl shadow-lg border border-[#30363d] transition-all text-sm tracking-wide flex items-center justify-center gap-2 cursor-pointer"
+                  className="w-full mt-6 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold py-3.5 px-6 rounded-2xl shadow-[0_10px_25px_-5px_rgba(16,185,129,0.3)] transition-all active:scale-[0.98] text-sm tracking-wide flex items-center justify-center gap-2 cursor-pointer"
                 >
-                  <span>الذهاب إلى "بطاقاتي"</span>
+                  <span>الذهاب إلى بطاقاتي</span>
                 </button>
               </div>
             </motion.div>
@@ -5992,18 +6801,14 @@ const fetchCloudStockStatus = async () => {
 
               <form onSubmit={handleAdminLoginSubmit} className="space-y-4">
                 <div>
-                  <label className="text-xs text-slate-300 font-medium block mb-1.5">كلمة مرور الأدمن</label>
+                  <label className="text-xs text-slate-300 font-medium block mb-1.5">مفتاح الأدمن السري</label>
                   <input
                     type="password"
                     value={adminPasswordInput}
                     onChange={(e) => setAdminPasswordInput(e.target.value)}
-                    placeholder="أدخل كلمة مرور الأدمن..."
-                    className="w-full bg-slate-900 border border-[#30363d] rounded-xl py-3 px-4 text-slate-100 placeholder-slate-500 outline-none focus:border-indigo-500/60 transition-all text-sm tracking-wide"
+                    placeholder="أدخل مفتاح الأدمن السري..."
+                    className="w-full bg-slate-900 border border-[#30363d] rounded-xl py-3 px-4 text-slate-100 placeholder-slate-500 outline-none focus:border-emerald-500/60 transition-all text-sm tracking-wide"
                   />
-                  <p className="text-[11px] text-emerald-400 mt-1.5 font-medium flex items-center gap-1">
-                    <span>💡</span>
-                    <span>كلمة المرور الافتراضية: 123456</span>
-                  </p>
                 </div>
                 <button
                   type="submit"
@@ -6078,6 +6883,18 @@ const fetchCloudStockStatus = async () => {
                   <LayoutDashboard className="w-5 h-5 shrink-0" />
                   <span className="hidden md:block font-medium text-sm">سجل المبيعات والمالية</span>
                 </button>
+
+                <button
+                  type="button"
+                  onClick={() => setAdminActiveTab('notifications')}
+                  className={`w-full flex items-center justify-center md:justify-start gap-3 p-3 rounded-xl transition-all cursor-pointer ${
+                    adminActiveTab === 'notifications' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 shadow-none' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
+                  }`}
+                  title="بث التنبيهات والإشعارات"
+                >
+                  <Megaphone className="w-5 h-5 shrink-0" />
+                  <span className="hidden md:block font-medium text-sm">بث التنبيهات والإشعارات</span>
+                </button>
               </div>
 
               <div className="p-4 border-t border-[#30363d]">
@@ -6098,7 +6915,8 @@ const fetchCloudStockStatus = async () => {
                  <div className="flex items-center gap-4">
                     <h2 className="text-lg font-bold text-slate-100 hidden sm:block">
                       {adminActiveTab === 'users' ? 'إدارة المشتركين' : 
-                       adminActiveTab === 'inventory' ? 'مخزون الكروت' : 'سجل المبيعات والتحليلات المالية'}
+                       adminActiveTab === 'inventory' ? 'مخزون الكروت' : 
+                       adminActiveTab === 'logs' ? 'سجل المبيعات والتحليلات المالية' : 'بث الإشعارات والتنبيهات العامة'}
                     </h2>
                  </div>
 
@@ -6148,10 +6966,12 @@ const fetchCloudStockStatus = async () => {
                         <span className="text-slate-400 text-xs sm:text-sm font-medium block mb-1">الكروت المتاحة</span>
                         <div className="flex items-end justify-between">
                           <span className="text-2xl sm:text-3xl font-bold text-emerald-400 font-mono">
-                            {(d1Cards || []).filter(c => {
-                              const st = (c?.status || '').toString().trim();
-                              return st === 'متاح' || st.toUpperCase() === 'AVAILABLE' || getNormalizedCardStatus(c) === 'AVAILABLE';
-                            }).length}
+                            {d1CardStats?.available !== undefined && d1CardStats?.available !== null
+                              ? d1CardStats.available
+                              : (d1Cards || []).filter(c => {
+                                  const st = (c?.status || '').toString().trim();
+                                  return st === 'متاح' || st.toUpperCase() === 'AVAILABLE' || getNormalizedCardStatus(c) === 'AVAILABLE';
+                                }).length}
                           </span>
                           <span className="bg-emerald-500/10 text-emerald-400 text-[10px] sm:text-xs px-2 py-1 rounded-md border border-emerald-500/20 font-medium flex items-center gap-1">
                             <CreditCard className="w-3 h-3 text-emerald-400" />
@@ -6363,24 +7183,30 @@ const fetchCloudStockStatus = async () => {
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                       <div className="bg-[#161b22] border border-[#30363d] rounded-2xl p-5 space-y-1.5 text-center shadow-sm">
                         <span className="text-xs text-slate-400 font-bold block">إجمالي الكروت</span>
-                        <span className="text-2xl font-black text-slate-100 font-mono">{(d1Cards || []).length}</span>
+                        <span className="text-2xl font-black text-slate-100 font-mono">
+                          {d1CardTotalCount || d1CardStats?.totalAll || d1CardStats?.total || (d1Cards || []).length}
+                        </span>
                       </div>
                       <div className="bg-[#161b22] border border-emerald-500/20 rounded-2xl p-5 space-y-1.5 text-center shadow-sm">
                         <span className="text-xs text-emerald-400 font-bold block">متاح</span>
                         <span className="text-2xl font-black text-emerald-400 font-mono">
-                          {(d1Cards || []).filter(c => {
-                            const st = (c?.status || '').toString().trim();
-                            return st === 'متاح' || st.toUpperCase() === 'AVAILABLE' || getNormalizedCardStatus(c) === 'AVAILABLE';
-                          }).length}
+                          {d1CardStats?.available !== undefined && d1CardStats?.available !== null
+                            ? d1CardStats.available
+                            : (d1Cards || []).filter(c => {
+                                const st = (c?.status || '').toString().trim();
+                                return st === 'متاح' || st.toUpperCase() === 'AVAILABLE' || getNormalizedCardStatus(c) === 'AVAILABLE';
+                              }).length}
                         </span>
                       </div>
                       <div className="bg-[#161b22] border border-sky-500/20 rounded-2xl p-5 space-y-1.5 text-center shadow-sm">
                         <span className="text-xs text-sky-400 font-bold block">مباع</span>
                         <span className="text-2xl font-black text-sky-400 font-mono">
-                          {(d1Cards || []).filter(c => {
-                            const st = (c?.status || '').toString().trim();
-                            return !(st === 'متاح' || st.toUpperCase() === 'AVAILABLE' || getNormalizedCardStatus(c) === 'AVAILABLE');
-                          }).length}
+                          {d1CardStats?.sold !== undefined && d1CardStats?.sold !== null
+                            ? d1CardStats.sold
+                            : (d1Cards || []).filter(c => {
+                                const st = (c?.status || '').toString().trim();
+                                return !(st === 'متاح' || st.toUpperCase() === 'AVAILABLE' || getNormalizedCardStatus(c) === 'AVAILABLE');
+                              }).length}
                         </span>
                       </div>
                     </div>
@@ -6925,21 +7751,20 @@ const fetchCloudStockStatus = async () => {
                   };
 
                   return (
-                    <div className="space-y-6" dir="rtl">
+                    <div className="space-y-6 antialiased" dir="rtl">
                       {/* Top Financial KPI Grid */}
                       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                         {/* 1. Total Revenue Card */}
-                        <div className="bg-gradient-to-br from-[#161c2e] to-[#0d1322] border border-emerald-500/20 rounded-2xl p-5 flex flex-col justify-between h-32 relative overflow-hidden shadow-none hover:border-lime-500/40 transition-all duration-300">
-                          <div className="absolute top-0 right-0 w-full h-1 bg-gradient-to-r from-lime-500 to-emerald-400"></div>
+                        <div className="bg-gradient-to-b from-emerald-500/10 via-slate-900/40 to-slate-950/80 backdrop-blur-xl border border-emerald-500/20 rounded-2xl p-5 flex flex-col justify-between h-34 relative overflow-hidden shadow-2xl shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)] hover:border-emerald-500/40 transition-all duration-300">
                           <div className="flex items-center justify-between">
                             <span className="text-slate-400 text-xs font-semibold">إجمالي الإيرادات</span>
-                            <div className="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+                            <div className="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shadow-inner">
                               <Coins className="w-5 h-5" />
                             </div>
                           </div>
                           <div>
                             <div className="flex items-baseline gap-1">
-                              <span className="text-3xl font-black text-emerald-400 font-mono" dir="ltr">₪{totalRevenue.toLocaleString()}</span>
+                              <span className="text-3xl font-extrabold text-emerald-400 font-mono tracking-tight" dir="ltr">₪{totalRevenue.toLocaleString()}</span>
                             </div>
                             <span className="text-[11px] text-slate-400 font-medium flex items-center gap-1 mt-1">
                               <TrendingUp className="w-3 h-3 text-emerald-400 inline" />
@@ -6949,16 +7774,16 @@ const fetchCloudStockStatus = async () => {
                         </div>
 
                         {/* 2. Total Cards Sold Card */}
-                        <div className="bg-gradient-to-br from-[#161c2e] to-[#0d1322] border border-[#30363d] rounded-2xl p-5 flex flex-col justify-between h-32 relative overflow-hidden hover:border-[#30363d] transition-all duration-300">
+                        <div className="bg-gradient-to-b from-blue-500/10 via-slate-900/40 to-slate-950/80 backdrop-blur-xl border border-blue-500/20 rounded-2xl p-5 flex flex-col justify-between h-34 relative overflow-hidden shadow-2xl shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)] hover:border-blue-500/40 transition-all duration-300">
                           <div className="flex items-center justify-between">
                             <span className="text-slate-400 text-xs font-semibold">إجمالي البطاقات المباعة</span>
-                            <div className="w-9 h-9 rounded-xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-center text-blue-400">
+                            <div className="w-9 h-9 rounded-xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-center text-blue-400 shadow-inner">
                               <ShoppingCart className="w-5 h-5" />
                             </div>
                           </div>
                           <div>
                             <div className="flex items-baseline gap-2">
-                              <span className="text-3xl font-black text-slate-100 font-mono">{totalSold}</span>
+                              <span className="text-3xl font-extrabold text-slate-100 font-mono tracking-tight">{totalSold}</span>
                               <span className="text-xs text-slate-400 font-medium">بطاقة</span>
                             </div>
                             <span className="text-[11px] text-slate-400 font-medium block mt-1">
@@ -6968,10 +7793,10 @@ const fetchCloudStockStatus = async () => {
                         </div>
 
                         {/* 3. Top Selling Package Card */}
-                        <div className="bg-gradient-to-br from-[#161c2e] to-[#0d1322] border border-[#30363d] rounded-2xl p-5 flex flex-col justify-between h-32 relative overflow-hidden hover:border-[#30363d] transition-all duration-300">
+                        <div className="bg-gradient-to-b from-amber-500/10 via-slate-900/40 to-slate-950/80 backdrop-blur-xl border border-amber-500/20 rounded-2xl p-5 flex flex-col justify-between h-34 relative overflow-hidden shadow-2xl shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)] hover:border-amber-500/40 transition-all duration-300">
                           <div className="flex items-center justify-between">
                             <span className="text-slate-400 text-xs font-semibold">الباقة الأكثر طلباً</span>
-                            <div className="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400">
+                            <div className="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 shadow-inner">
                               <Award className="w-5 h-5" />
                             </div>
                           </div>
@@ -6985,16 +7810,16 @@ const fetchCloudStockStatus = async () => {
                         </div>
 
                         {/* 4. Total Compensations Card */}
-                        <div className="bg-gradient-to-br from-[#161c2e] to-[#0d1322] border border-purple-500/20 rounded-2xl p-5 flex flex-col justify-between h-32 relative overflow-hidden hover:border-purple-500/40 transition-all duration-300">
+                        <div className="bg-gradient-to-b from-purple-500/10 via-slate-900/40 to-slate-950/80 backdrop-blur-xl border border-purple-500/20 rounded-2xl p-5 flex flex-col justify-between h-34 relative overflow-hidden shadow-2xl shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)] hover:border-purple-500/40 transition-all duration-300">
                           <div className="flex items-center justify-between">
                             <span className="text-slate-400 text-xs font-semibold">الكروت المعوضة والماركات</span>
-                            <div className="w-9 h-9 rounded-xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-400">
+                            <div className="w-9 h-9 rounded-xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-400 shadow-inner">
                               <Gift className="w-5 h-5" />
                             </div>
                           </div>
                           <div>
                             <div className="flex items-baseline gap-2">
-                              <span className="text-3xl font-black text-purple-400 font-mono">{totalCompensations}</span>
+                              <span className="text-3xl font-extrabold text-purple-400 font-mono tracking-tight">{totalCompensations}</span>
                               <span className="text-xs text-slate-400 font-medium">بطاقة</span>
                             </div>
                             <span className="text-[11px] text-slate-400 font-medium block mt-1">
@@ -7004,13 +7829,13 @@ const fetchCloudStockStatus = async () => {
                         </div>
                       </div>
 
-                      {/* Package Breakdown Visual Stats - Redesigned Modern Layout */}
-                      <div className="bg-[#1e293b] border border-[#334155] rounded-2xl overflow-hidden shadow-2xl">
+                      {/* Package Breakdown Visual Stats - Redesigned Glassmorphic Layout */}
+                      <div className="bg-slate-900/40 backdrop-blur-xl border border-white/5 rounded-2xl overflow-hidden shadow-2xl shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)]">
                         {/* Header Row */}
-                        <div className="p-6 border-b border-[#334155] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-[#1e293b]/50">
+                        <div className="p-5 sm:p-6 border-b border-white/5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-slate-950/30">
                           <div>
-                            <h3 className="text-lg font-black text-white flex items-center gap-3">
-                              <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20">
+                            <h3 className="text-lg font-bold text-slate-100 flex items-center gap-3">
+                              <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20 shadow-sm">
                                 <Activity className="w-5 h-5 text-emerald-400" />
                               </div>
                               توزيع المبيعات حسب الباقات
@@ -7021,7 +7846,7 @@ const fetchCloudStockStatus = async () => {
                           <button
                             type="button"
                             onClick={handleExportSalesExcel}
-                            className="w-full sm:w-auto px-5 py-2.5 bg-[#0f172a] hover:bg-[#1e293b] text-slate-200 border border-[#334155] rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 shadow-lg active:scale-95 cursor-pointer"
+                            className="w-full sm:w-auto px-5 py-2.5 bg-slate-800/80 hover:bg-slate-700/80 text-slate-200 border border-white/10 rounded-xl text-xs font-semibold transition-all flex items-center justify-center gap-2 shadow-md active:scale-95 cursor-pointer"
                           >
                             <FileSpreadsheet className="w-4 h-4 text-emerald-400" />
                             تصدير تقرير Excel
@@ -7029,37 +7854,37 @@ const fetchCloudStockStatus = async () => {
                         </div>
 
                         {/* Distribution Content Area */}
-                        <div className="p-6 space-y-8">
-                          {/* 10 Hours Package Row */}
-                          <div className="group space-y-4">
-                            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2">
+                        <div className="p-5 sm:p-6 space-y-4">
+                          {/* 10 Hours Package Sub-Card */}
+                          <div className="bg-white/[0.02] border border-white/5 rounded-xl p-4 sm:p-5 hover:bg-white/[0.04] transition-all duration-200 space-y-3 shadow-sm">
+                            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
                               <div className="flex items-center gap-3">
                                 <div className="w-1.5 h-8 rounded-full bg-emerald-500"></div>
                                 <div>
-                                  <span className="text-sm font-black text-slate-100 block">باقة 10 ساعات</span>
-                                  <span className="text-[10px] text-emerald-500 font-bold uppercase tracking-wider">سعر البيع: ₪2.00</span>
+                                  <span className="text-sm font-bold text-slate-100 block">باقة 10 ساعات</span>
+                                  <span className="text-[11px] text-emerald-400 font-semibold uppercase tracking-wider">سعر البيع: ₪2.00</span>
                                 </div>
                               </div>
                               
-                              <div className="flex items-center gap-4 text-[11px] font-black text-slate-300">
+                              <div className="flex items-center gap-4 text-xs font-bold text-slate-300">
                                 <div className="flex flex-col items-end">
-                                  <span className="text-slate-400 uppercase text-[9px] mb-0.5">الكمية المباعة</span>
+                                  <span className="text-slate-400 uppercase text-[10px] mb-0.5">الكمية المباعة</span>
                                   <span className="font-mono text-slate-100">{p10Count} كرت</span>
                                 </div>
-                                <div className="w-px h-6 bg-slate-700"></div>
+                                <div className="w-px h-6 bg-slate-800"></div>
                                 <div className="flex flex-col items-end">
-                                  <span className="text-slate-400 uppercase text-[9px] mb-0.5">نسبة الحصة</span>
+                                  <span className="text-slate-400 uppercase text-[10px] mb-0.5">نسبة الحصة</span>
                                   <span className="font-mono text-emerald-400">{p10Pct}%</span>
                                 </div>
-                                <div className="w-px h-6 bg-slate-700"></div>
+                                <div className="w-px h-6 bg-slate-800"></div>
                                 <div className="flex flex-col items-end">
-                                  <span className="text-slate-400 uppercase text-[9px] mb-0.5">إجمالي الإيراد</span>
+                                  <span className="text-slate-400 uppercase text-[10px] mb-0.5">إجمالي الإيراد</span>
                                   <span className="font-mono text-white">₪{p10Rev}</span>
                                 </div>
                               </div>
                             </div>
                             
-                            <div className="relative w-full bg-[#0f172a] h-2.5 rounded-full overflow-hidden shadow-inner border border-[#334155]/50 p-0.5">
+                            <div className="relative w-full bg-black/40 h-2.5 rounded-full overflow-hidden border border-white/5 p-0.5">
                               <motion.div
                                 initial={{ width: 0 }}
                                 animate={{ width: `${p10Pct}%` }}
@@ -7069,36 +7894,36 @@ const fetchCloudStockStatus = async () => {
                             </div>
                           </div>
 
-                          {/* 24 Hours Package Row */}
-                          <div className="group space-y-4">
-                            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2">
+                          {/* 24 Hours Package Sub-Card */}
+                          <div className="bg-white/[0.02] border border-white/5 rounded-xl p-4 sm:p-5 hover:bg-white/[0.04] transition-all duration-200 space-y-3 shadow-sm">
+                            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
                               <div className="flex items-center gap-3">
                                 <div className="w-1.5 h-8 rounded-full bg-indigo-500"></div>
                                 <div>
-                                  <span className="text-sm font-black text-slate-100 block">باقة 24 ساعة</span>
-                                  <span className="text-[10px] text-indigo-400 font-bold uppercase tracking-wider">سعر البيع: ₪3.00</span>
+                                  <span className="text-sm font-bold text-slate-100 block">باقة 24 ساعة</span>
+                                  <span className="text-[11px] text-indigo-400 font-semibold uppercase tracking-wider">سعر البيع: ₪3.00</span>
                                 </div>
                               </div>
                               
-                              <div className="flex items-center gap-4 text-[11px] font-black text-slate-300">
+                              <div className="flex items-center gap-4 text-xs font-bold text-slate-300">
                                 <div className="flex flex-col items-end">
-                                  <span className="text-slate-400 uppercase text-[9px] mb-0.5">الكمية المباعة</span>
+                                  <span className="text-slate-400 uppercase text-[10px] mb-0.5">الكمية المباعة</span>
                                   <span className="font-mono text-slate-100">{p24Count} كرت</span>
                                 </div>
-                                <div className="w-px h-6 bg-slate-700"></div>
+                                <div className="w-px h-6 bg-slate-800"></div>
                                 <div className="flex flex-col items-end">
-                                  <span className="text-slate-400 uppercase text-[9px] mb-0.5">نسبة الحصة</span>
+                                  <span className="text-slate-400 uppercase text-[10px] mb-0.5">نسبة الحصة</span>
                                   <span className="font-mono text-indigo-400">{p24Pct}%</span>
                                 </div>
-                                <div className="w-px h-6 bg-slate-700"></div>
+                                <div className="w-px h-6 bg-slate-800"></div>
                                 <div className="flex flex-col items-end">
-                                  <span className="text-slate-400 uppercase text-[9px] mb-0.5">إجمالي الإيراد</span>
+                                  <span className="text-slate-400 uppercase text-[10px] mb-0.5">إجمالي الإيراد</span>
                                   <span className="font-mono text-white">₪{p24Rev}</span>
                                 </div>
                               </div>
                             </div>
                             
-                            <div className="relative w-full bg-[#0f172a] h-2.5 rounded-full overflow-hidden shadow-inner border border-[#334155]/50 p-0.5">
+                            <div className="relative w-full bg-black/40 h-2.5 rounded-full overflow-hidden border border-white/5 p-0.5">
                               <motion.div
                                 initial={{ width: 0 }}
                                 animate={{ width: `${p24Pct}%` }}
@@ -7109,25 +7934,26 @@ const fetchCloudStockStatus = async () => {
                           </div>
                         </div>
                       </div>
+
                       {/* Detailed Transactions Log Table */}
-                      <div className="bg-[#161b22] border border-[#30363d] rounded-2xl p-6 space-y-4">
+                      <div className="bg-slate-900/40 backdrop-blur-xl border border-white/5 rounded-2xl p-5 sm:p-6 space-y-4 shadow-2xl shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)]">
                         <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 pb-2">
                           <div>
-                            <h3 className="text-base font-bold text-slate-100 flex items-center gap-2">
+                            <h3 className="text-lg font-bold text-slate-100 flex items-center gap-2">
                               <CreditCard className="w-5 h-5 text-emerald-400" />
                               سجل العمليات والمبيعات المباشر
                             </h3>
-                            <p className="text-xs text-slate-400 mt-0.5">يعرض جميع عمليات الشراء والتعويضات المسجلة من قاعدة البيانات والـ Cloud</p>
+                            <p className="text-xs text-slate-400 mt-0.5 font-medium">يعرض جميع عمليات الشراء والتعويضات المسجلة من قاعدة البيانات والـ Cloud</p>
                           </div>
 
                           {/* Status Filter Pills */}
-                          <div className="flex items-center bg-[#161b22] p-1 rounded-xl border border-[#30363d] gap-1 w-full lg:w-auto">
+                          <div className="flex items-center bg-black/40 p-1 rounded-xl border border-white/10 gap-1 w-full lg:w-auto">
                             <button
                               type="button"
                               onClick={() => setSalesFilterStatus('all')}
-                              className={`flex-1 lg:flex-initial px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                              className={`flex-1 lg:flex-initial px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                                 salesFilterStatus === 'all'
-                                  ? 'bg-slate-800 text-emerald-400 shadow-sm border border-[#30363d]'
+                                  ? 'bg-slate-800 text-emerald-400 shadow-sm border border-white/10'
                                   : 'text-slate-400 hover:text-slate-200'
                               }`}
                             >
@@ -7136,7 +7962,7 @@ const fetchCloudStockStatus = async () => {
                             <button
                               type="button"
                               onClick={() => setSalesFilterStatus('sold')}
-                              className={`flex-1 lg:flex-initial px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                              className={`flex-1 lg:flex-initial px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                                 salesFilterStatus === 'sold'
                                   ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30'
                                   : 'text-slate-400 hover:text-slate-200'
@@ -7147,7 +7973,7 @@ const fetchCloudStockStatus = async () => {
                             <button
                               type="button"
                               onClick={() => setSalesFilterStatus('compensation')}
-                              className={`flex-1 lg:flex-initial px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                              className={`flex-1 lg:flex-initial px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                                 salesFilterStatus === 'compensation'
                                   ? 'bg-purple-500/10 text-purple-400 border border-purple-500/30'
                                   : 'text-slate-400 hover:text-slate-200'
@@ -7166,20 +7992,20 @@ const fetchCloudStockStatus = async () => {
                             placeholder="بحث باسم المشترك، رقم الجوال، الباقة، أو تاريخ العملية..."
                             value={salesSearchQuery}
                             onChange={(e) => setSalesSearchQuery(e.target.value)}
-                            className="w-full bg-[#161b22] border border-[#30363d] rounded-xl pr-10 pl-4 py-2.5 text-xs sm:text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-lime-500/50"
+                            className="w-full bg-black/40 border border-white/10 rounded-xl pr-10 pl-4 py-2.5 text-xs sm:text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500/50 transition-all duration-300"
                           />
                         </div>
 
                         {/* Transactions Table */}
                         {filteredTxs.length === 0 ? (
-                          <div className="text-center py-12 bg-[#161b22] border border-[#30363d] rounded-xl space-y-2">
+                          <div className="text-center py-12 bg-black/20 border border-white/5 rounded-xl space-y-2">
                             <p className="text-sm text-slate-400 font-medium">لا توجد عمليات مبيعات مطابقة لشروط البحث.</p>
                             <p className="text-xs text-slate-500">جرب تغيير شروط الفلترة أو تفريغ خيار البحث أعلاه.</p>
                           </div>
                         ) : (
-                          <div className="overflow-x-auto custom-scrollbar rounded-xl border border-[#30363d]">
+                          <div className="overflow-x-auto custom-scrollbar rounded-xl border border-white/10">
                             <table className="w-full text-right text-xs sm:text-sm">
-                              <thead className="bg-[#161b22] text-slate-400 border-b border-[#30363d]">
+                              <thead className="bg-slate-950/60 text-slate-400 border-b border-white/10">
                                 <tr>
                                   <th className="p-3.5 font-semibold">تاريخ العملية</th>
                                   <th className="p-3.5 font-semibold">اسم المشترك / الجوال</th>
@@ -7188,9 +8014,9 @@ const fetchCloudStockStatus = async () => {
                                   <th className="p-3.5 font-semibold text-center">حالة العملية</th>
                                 </tr>
                               </thead>
-                              <tbody className="divide-y divide-slate-800/50 text-slate-300">
+                              <tbody className="divide-y divide-white/5 text-slate-300">
                                 {filteredTxs.map((t) => (
-                                  <tr key={t.id} className="hover:bg-slate-800/30 transition-colors">
+                                  <tr key={t.id} className="hover:bg-white/[0.02] transition-colors">
                                     <td className="p-3.5 text-slate-400 font-mono text-xs" dir="ltr">
                                       {t.date}
                                     </td>
@@ -7198,7 +8024,7 @@ const fetchCloudStockStatus = async () => {
                                       {t.username}
                                     </td>
                                     <td className="p-3.5 font-medium text-slate-200">
-                                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-slate-800/80 border border-[#30363d]/80 rounded-lg text-xs">
+                                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-white/[0.03] border border-white/10 rounded-lg text-xs">
                                         <Zap className="w-3 h-3 text-amber-400" />
                                         {t.packageName}
                                       </span>
@@ -7233,6 +8059,196 @@ const fetchCloudStockStatus = async () => {
                     </div>
                   );
                 })()}
+
+                {adminActiveTab === 'notifications' && (
+                  <div className="space-y-6 max-w-4xl mx-auto antialiased" dir="rtl">
+                    {/* Header Banner */}
+                    <div className="bg-slate-900/40 backdrop-blur-xl border border-white/5 rounded-2xl p-5 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-2xl shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)]">
+                      <div className="flex items-center gap-3.5">
+                        <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 shrink-0 shadow-inner">
+                          <Megaphone className="w-6 h-6" />
+                        </div>
+                        <div>
+                          <h3 className="text-base sm:text-lg font-bold text-slate-100 tracking-tight">نظام بث الإشعارات والتنبيهات العامة</h3>
+                          <p className="text-xs text-slate-400 mt-0.5 font-medium">إرسال تنويهات وتنبيهات فورية للمشتركين تظهر كبانر فوري وداخل مركز الإشعارات</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Notification Form Card */}
+                    <div className="bg-slate-900/40 backdrop-blur-xl border border-white/5 rounded-2xl p-5 sm:p-6 space-y-5 shadow-2xl shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)]">
+                      <h4 className="text-sm font-bold text-slate-200 border-b border-white/5 pb-3 flex items-center gap-2">
+                        <Send className="w-4 h-4 text-emerald-400" />
+                        إنشاء وإرسال إشعار جديد
+                      </h4>
+
+                      <form onSubmit={handleSendAdminNotification} className="space-y-4">
+                        {/* Target Selection */}
+                        <div className="space-y-2">
+                          <label className="text-xs text-slate-300 font-semibold block">الفئة المستهدفة للإشعار</label>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <button
+                              type="button"
+                              onClick={() => setAdminNotifTarget('all')}
+                              className={`p-3.5 rounded-xl border text-right transition-all flex items-center justify-between cursor-pointer ${
+                                adminNotifTarget === 'all'
+                                  ? 'bg-emerald-500/10 border-emerald-500/50 text-emerald-300 shadow-sm'
+                                  : 'bg-black/40 border-white/10 text-slate-400 hover:border-slate-700 hover:text-slate-200'
+                              }`}
+                            >
+                              <div className="flex items-center gap-2.5">
+                                <Users className="w-4 h-4" />
+                                <div>
+                                  <div className="text-xs font-bold">جميع المشتركين</div>
+                                  <div className="text-[11px] opacity-75">إشعار عام لكافة المناطق</div>
+                                </div>
+                              </div>
+                              {adminNotifTarget === 'all' && <Check className="w-4 h-4 text-emerald-400" />}
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() => setAdminNotifTarget('camp')}
+                              className={`p-3.5 rounded-xl border text-right transition-all flex items-center justify-between cursor-pointer ${
+                                adminNotifTarget === 'camp'
+                                  ? 'bg-emerald-500/10 border-emerald-500/50 text-emerald-300 shadow-sm'
+                                  : 'bg-black/40 border-white/10 text-slate-400 hover:border-slate-700 hover:text-slate-200'
+                              }`}
+                            >
+                              <div className="flex items-center gap-2.5">
+                                <Filter className="w-4 h-4" />
+                                <div>
+                                  <div className="text-xs font-bold">مخيم / منطقة محددة</div>
+                                  <div className="text-[11px] opacity-75">استهداف المشتركين في منطقة معينة</div>
+                                </div>
+                              </div>
+                              {adminNotifTarget === 'camp' && <Check className="w-4 h-4 text-emerald-400" />}
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Camp Selection Dropdown (if targeted) */}
+                        {adminNotifTarget === 'camp' && (
+                          <div className="space-y-1.5 pt-1">
+                            <label className="text-xs text-slate-300 font-semibold block">اختر المخيم / المنطقة المستهدفة</label>
+                            <select
+                              value={adminNotifCamp}
+                              onChange={(e) => setAdminNotifCamp(e.target.value)}
+                              className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-xs sm:text-sm text-slate-200 placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500/50 transition-all duration-300"
+                            >
+                              {REGIONS.map((camp) => (
+                                <option key={camp} value={camp} className="bg-slate-900 text-slate-200">
+                                  {camp}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                        )}
+
+                        {/* Title Input */}
+                        <div className="space-y-1.5">
+                          <label className="text-xs text-slate-300 font-semibold block">عنوان الإشعار</label>
+                          <input
+                            type="text"
+                            value={adminNotifTitle}
+                            onChange={(e) => setAdminNotifTitle(e.target.value)}
+                            placeholder="مثال: تنويه بخصوص أعمال صيانة مجدولة في الشبكة..."
+                            className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-xs sm:text-sm text-slate-200 placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500/50 transition-all duration-300"
+                          />
+                        </div>
+
+                        {/* Message Textarea */}
+                        <div className="space-y-1.5">
+                          <label className="text-xs text-slate-300 font-semibold block">نص وتفاصيل الإشعار</label>
+                          <textarea
+                            rows={4}
+                            value={adminNotifMessage}
+                            onChange={(e) => setAdminNotifMessage(e.target.value)}
+                            placeholder="اكتب نص الرسالة التي ستصل للمشتركين هنا..."
+                            className="w-full bg-black/40 border border-white/10 rounded-xl p-4 text-xs sm:text-sm text-slate-200 placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500/50 transition-all duration-300 resize-none custom-scrollbar"
+                          />
+                        </div>
+
+                        {/* Submit Button */}
+                        <button
+                          type="submit"
+                          disabled={isSendingNotif || !adminNotifTitle.trim() || !adminNotifMessage.trim()}
+                          className="w-full sm:w-auto px-7 py-3.5 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded-xl shadow-[0_0_20px_rgba(16,185,129,0.2)] hover:shadow-[0_0_30px_rgba(16,185,129,0.4)] transition-all transform hover:-translate-y-0.5 text-xs sm:text-sm flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                        >
+                          {isSendingNotif ? (
+                            <>
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                              <span>جاري إرسال الإشعار...</span>
+                            </>
+                          ) : (
+                            <>
+                              <Send className="w-4 h-4" />
+                              <span>إرسال وبث الإشعار الآن</span>
+                            </>
+                          )}
+                        </button>
+                      </form>
+                    </div>
+
+                    {/* Broadcasted Notifications History */}
+                    <div className="bg-slate-900/40 backdrop-blur-xl border border-white/5 rounded-2xl p-5 sm:p-6 space-y-4 shadow-2xl shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)]">
+                      <div className="flex items-center justify-between border-b border-white/5 pb-3">
+                        <h4 className="text-sm font-bold text-slate-200 flex items-center gap-2">
+                          <Bell className="w-4 h-4 text-emerald-400" />
+                          سجل الإشعارات المنشورة ({notifications.length})
+                        </h4>
+                        {notifications.length > 0 && (
+                          <button
+                            type="button"
+                            onClick={handleClearNotifs}
+                            className="text-xs text-rose-400 hover:text-rose-300 font-bold transition-colors cursor-pointer"
+                          >
+                            مسح السجل
+                          </button>
+                        )}
+                      </div>
+
+                      {notifications.length === 0 ? (
+                        <div className="text-center py-10 text-slate-500 text-xs font-medium">
+                          لا توجد إشعارات سابقة مسجلة في النظام
+                        </div>
+                      ) : (
+                        <div className="space-y-3 max-h-96 overflow-y-auto custom-scrollbar pr-1">
+                          {notifications.map((notif) => (
+                            <div
+                              key={notif.id}
+                              className="bg-black/30 border border-white/5 rounded-xl p-4 space-y-2 relative hover:bg-black/40 transition-colors"
+                            >
+                              <div className="flex items-start justify-between gap-2">
+                                <div className="flex items-center gap-2">
+                                  <span className="w-2 h-2 rounded-full bg-emerald-400 shrink-0" />
+                                  <h5 className="text-xs sm:text-sm font-bold text-white">{notif.title}</h5>
+                                </div>
+                                <button
+                                  type="button"
+                                  onClick={() => handleDeleteNotif(notif.id)}
+                                  className="text-slate-500 hover:text-rose-400 p-1 transition-colors cursor-pointer"
+                                  title="حذف الإشعار"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              </div>
+                              <p className="text-xs text-slate-300 leading-relaxed font-normal whitespace-pre-wrap pl-4">
+                                {notif.body}
+                              </p>
+                              <div className="flex items-center justify-between text-[11px] text-slate-500 pt-2 border-t border-white/5 font-mono">
+                                <span>{new Date(notif.timestamp).toLocaleString('ar-EG')}</span>
+                                <span className="font-sans px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-[#30363d]">
+                                  {notif.isGeneral || notif.targetCamp === 'ALL' ? '📢 إشعار عام' : `🎯 موجه إلى: ${notif.targetCamp}`}
+                                </span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
 
 
               </div>

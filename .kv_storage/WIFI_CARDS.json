@@ -1,0 +1,1711 @@
+{
+  "kv_store": {
+    "user:testuser_kv1": {
+      "username": "testuser_kv1",
+      "phone": "0599123456",
+      "fullName": "أحمد محمد علي",
+      "region": "مخيم النصيرات",
+      "password": "Password123!",
+      "createdAt": "2026-08-11T17:01:28.495Z",
+      "id": "u_1786467688495_m4w9",
+      "firstName": "أحمد",
+      "first_name": "أحمد",
+      "fatherName": "محمد",
+      "father_name": "محمد",
+      "lastName": "علي",
+      "last_name": "علي",
+      "camp": "مخيم النصيرات",
+      "registered_at": "2026-08-11T17:01:28.495Z"
+    },
+    "user:111": {
+      "username": "111",
+      "phone": "0598828288",
+      "fullName": "نحنح نتت نتنت",
+      "region": "مخيم الجزيرة",
+      "password": "111",
+      "createdAt": "2026-08-12T06:21:26.813Z",
+      "id": "u_1786515686813_47qd",
+      "firstName": "نحنح",
+      "first_name": "نحنح",
+      "fatherName": "نتت",
+      "father_name": "نتت",
+      "lastName": "نتنت",
+      "last_name": "نتنت",
+      "camp": "مخيم الجزيرة",
+      "registered_at": "2026-08-12T06:21:26.813Z"
+    },
+    "user:محمد": {
+      "username": "محمد",
+      "phone": "0509999929",
+      "fullName": "محمد علي كلاي",
+      "region": "مخيم الجزيرة",
+      "password": "12345",
+      "createdAt": "2026-08-12T06:32:17.821Z",
+      "id": "u_1786516337821_17rr",
+      "firstName": "محمد",
+      "first_name": "محمد",
+      "fatherName": "علي",
+      "father_name": "علي",
+      "lastName": "كلاي",
+      "last_name": "كلاي",
+      "camp": "مخيم الجزيرة",
+      "registered_at": "2026-08-12T06:32:17.821Z"
+    },
+    "user:testmsg_1786516457089": {
+      "username": "testmsg_1786516457089",
+      "phone": "0599982175",
+      "fullName": "سعيد حسن أحمد",
+      "region": "مخيم خانيونس",
+      "password": "Password123!",
+      "createdAt": "2026-08-12T06:34:17.204Z",
+      "id": "u_1786516457204_7d5d",
+      "firstName": "سعيد",
+      "first_name": "سعيد",
+      "fatherName": "حسن",
+      "father_name": "حسن",
+      "lastName": "أحمد",
+      "last_name": "أحمد",
+      "camp": "مخيم خانيونس",
+      "registered_at": "2026-08-12T06:34:17.204Z"
+    },
+    "user:محمدو": {
+      "username": "محمدو",
+      "phone": "0599292929",
+      "fullName": "احمد علي كلاي",
+      "region": "مخيم الجزيرة",
+      "password": "12345",
+      "createdAt": "2026-08-12T06:52:11.731Z",
+      "id": "u_1786517531731_bhg3",
+      "firstName": "احمد",
+      "first_name": "احمد",
+      "fatherName": "علي",
+      "father_name": "علي",
+      "lastName": "كلاي",
+      "last_name": "كلاي",
+      "camp": "مخيم الجزيرة",
+      "registered_at": "2026-08-12T06:52:11.731Z"
+    },
+    "user_cards:user1": [
+      {
+        "id": "card_atomic_test_999",
+        "code": "HYPER-9999",
+        "status": "ACTIVE",
+        "duration": "24 ساعة",
+        "price": "10 شيكل",
+        "activatedBy": "user1",
+        "activationTime": "2026-08-12T07:11:53.262Z",
+        "timeLeft": "24 ساعة"
+      }
+    ],
+    "user_cards:testuser": [
+      {
+        "id": "c_1786518896172_0_367od",
+        "username": "testuser",
+        "name": "10_hours",
+        "code": "HYPER-4752",
+        "cardUsername": "908691876183",
+        "cardPassword": "903317",
+        "duration": "24 ساعة",
+        "dataLimit": "غير محدود",
+        "status": "unused",
+        "downloadUsed": "0 MB",
+        "uploadUsed": "0 MB",
+        "timeLeft": "غير مفعلة",
+        "purchaseDate": "١٢‏/٨‏/٢٠٢٦",
+        "price": ""
+      },
+      {
+        "id": "c_1786518882630_0_3ez6u",
+        "username": "testuser",
+        "name": "10_hours",
+        "code": "HYPER-6748",
+        "cardUsername": "798967199305",
+        "cardPassword": "388534",
+        "duration": "24 ساعة",
+        "dataLimit": "غير محدود",
+        "status": "unused",
+        "downloadUsed": "0 MB",
+        "uploadUsed": "0 MB",
+        "timeLeft": "غير مفعلة",
+        "purchaseDate": "١٢‏/٨‏/٢٠٢٦",
+        "price": ""
+      },
+      {
+        "id": "c_1786518882626_0_8f1gy",
+        "username": "testuser",
+        "name": "10_hours",
+        "code": "HYPER-8718",
+        "cardUsername": "724163804981",
+        "cardPassword": "856875",
+        "duration": "24 ساعة",
+        "dataLimit": "غير محدود",
+        "status": "unused",
+        "downloadUsed": "0 MB",
+        "uploadUsed": "0 MB",
+        "timeLeft": "غير مفعلة",
+        "purchaseDate": "١٢‏/٨‏/٢٠٢٦",
+        "price": ""
+      },
+      {
+        "id": "c_1786518879183_0_kqegz",
+        "username": "testuser",
+        "name": "10_hours",
+        "code": "HYPER-7364",
+        "cardUsername": "608741848810",
+        "cardPassword": "667566",
+        "duration": "24 ساعة",
+        "dataLimit": "غير محدود",
+        "status": "unused",
+        "downloadUsed": "0 MB",
+        "uploadUsed": "0 MB",
+        "timeLeft": "غير مفعلة",
+        "purchaseDate": "١٢‏/٨‏/٢٠٢٦",
+        "price": ""
+      },
+      {
+        "id": "c_1786518879015_0_838qi",
+        "username": "testuser",
+        "name": "10_hours",
+        "code": "HYPER-6239",
+        "cardUsername": "548668210770",
+        "cardPassword": "735414",
+        "duration": "24 ساعة",
+        "dataLimit": "غير محدود",
+        "status": "unused",
+        "downloadUsed": "0 MB",
+        "uploadUsed": "0 MB",
+        "timeLeft": "غير مفعلة",
+        "purchaseDate": "١٢‏/٨‏/٢٠٢٦",
+        "price": ""
+      },
+      {
+        "id": "c_1786518874819_0_wltzo",
+        "username": "testuser",
+        "name": "10_hours",
+        "code": "HYPER-2498",
+        "cardUsername": "107769588156",
+        "cardPassword": "302806",
+        "duration": "24 ساعة",
+        "dataLimit": "غير محدود",
+        "status": "unused",
+        "downloadUsed": "0 MB",
+        "uploadUsed": "0 MB",
+        "timeLeft": "غير مفعلة",
+        "purchaseDate": "١٢‏/٨‏/٢٠٢٦",
+        "price": ""
+      },
+      {
+        "id": "c_1786518874815_0_nww41",
+        "username": "testuser",
+        "name": "10_hours",
+        "code": "HYPER-4138",
+        "cardUsername": "240603738765",
+        "cardPassword": "561276",
+        "duration": "24 ساعة",
+        "dataLimit": "غير محدود",
+        "status": "unused",
+        "downloadUsed": "0 MB",
+        "uploadUsed": "0 MB",
+        "timeLeft": "غير مفعلة",
+        "purchaseDate": "١٢‏/٨‏/٢٠٢٦",
+        "price": ""
+      },
+      {
+        "id": "c_1786518863690_0_jjmfr",
+        "username": "testuser",
+        "name": "10_hours",
+        "code": "HYPER-6042",
+        "cardUsername": "321694899285",
+        "cardPassword": "701568",
+        "duration": "24 ساعة",
+        "dataLimit": "غير محدود",
+        "status": "unused",
+        "downloadUsed": "0 MB",
+        "uploadUsed": "0 MB",
+        "timeLeft": "غير مفعلة",
+        "purchaseDate": "١٢‏/٨‏/٢٠٢٦",
+        "price": ""
+      },
+      {
+        "id": "c_1786518863686_0_pzgcy",
+        "username": "testuser",
+        "name": "10_hours",
+        "code": "HYPER-5844",
+        "cardUsername": "808992490063",
+        "cardPassword": "103418",
+        "duration": "24 ساعة",
+        "dataLimit": "غير محدود",
+        "status": "unused",
+        "downloadUsed": "0 MB",
+        "uploadUsed": "0 MB",
+        "timeLeft": "غير مفعلة",
+        "purchaseDate": "١٢‏/٨‏/٢٠٢٦",
+        "price": ""
+      },
+      {
+        "id": "c_1786518847985_0_vs9kw",
+        "username": "testuser",
+        "name": "10_hours",
+        "code": "HYPER-5029",
+        "cardUsername": "314667130738",
+        "cardPassword": "455573",
+        "duration": "24 ساعة",
+        "dataLimit": "غير محدود",
+        "status": "unused",
+        "downloadUsed": "0 MB",
+        "uploadUsed": "0 MB",
+        "timeLeft": "غير مفعلة",
+        "purchaseDate": "١٢‏/٨‏/٢٠٢٦",
+        "price": ""
+      },
+      {
+        "id": "c_1786518847980_0_pzwx0",
+        "username": "testuser",
+        "name": "10_hours",
+        "code": "HYPER-7942",
+        "cardUsername": "931330467780",
+        "cardPassword": "494019",
+        "duration": "24 ساعة",
+        "dataLimit": "غير محدود",
+        "status": "unused",
+        "downloadUsed": "0 MB",
+        "uploadUsed": "0 MB",
+        "timeLeft": "غير مفعلة",
+        "purchaseDate": "١٢‏/٨‏/٢٠٢٦",
+        "price": ""
+      },
+      {
+        "id": "c_1786518837217_0_m82p2",
+        "username": "testuser",
+        "name": "10_hours",
+        "code": "HYPER-4690",
+        "cardUsername": "815716173158",
+        "cardPassword": "758513",
+        "duration": "24 ساعة",
+        "dataLimit": "غير محدود",
+        "status": "unused",
+        "downloadUsed": "0 MB",
+        "uploadUsed": "0 MB",
+        "timeLeft": "غير مفعلة",
+        "purchaseDate": "١٢‏/٨‏/٢٠٢٦",
+        "price": ""
+      },
+      {
+        "id": "c_1786518837213_0_kb4tk",
+        "username": "testuser",
+        "name": "10_hours",
+        "code": "HYPER-4976",
+        "cardUsername": "219810067049",
+        "cardPassword": "472763",
+        "duration": "24 ساعة",
+        "dataLimit": "غير محدود",
+        "status": "unused",
+        "downloadUsed": "0 MB",
+        "uploadUsed": "0 MB",
+        "timeLeft": "غير مفعلة",
+        "purchaseDate": "١٢‏/٨‏/٢٠٢٦",
+        "price": ""
+      },
+      {
+        "id": "c_1786518832590_0_razah",
+        "username": "testuser",
+        "name": "10_hours",
+        "code": "HYPER-6474",
+        "cardUsername": "442521333738",
+        "cardPassword": "829752",
+        "duration": "24 ساعة",
+        "dataLimit": "غير محدود",
+        "status": "unused",
+        "downloadUsed": "0 MB",
+        "uploadUsed": "0 MB",
+        "timeLeft": "غير مفعلة",
+        "purchaseDate": "١٢‏/٨‏/٢٠٢٦",
+        "price": ""
+      },
+      {
+        "id": "c_1786518832586_0_riq16",
+        "username": "testuser",
+        "name": "10_hours",
+        "code": "HYPER-3797",
+        "cardUsername": "307102661464",
+        "cardPassword": "840896",
+        "duration": "24 ساعة",
+        "dataLimit": "غير محدود",
+        "status": "unused",
+        "downloadUsed": "0 MB",
+        "uploadUsed": "0 MB",
+        "timeLeft": "غير مفعلة",
+        "purchaseDate": "١٢‏/٨‏/٢٠٢٦",
+        "price": ""
+      },
+      {
+        "id": "c_1786518819505_0_tyknh",
+        "username": "testuser",
+        "name": "10_hours",
+        "code": "HYPER-7114",
+        "cardUsername": "228989615983",
+        "cardPassword": "899471",
+        "duration": "24 ساعة",
+        "dataLimit": "غير محدود",
+        "status": "unused",
+        "downloadUsed": "0 MB",
+        "uploadUsed": "0 MB",
+        "timeLeft": "غير مفعلة",
+        "purchaseDate": "١٢‏/٨‏/٢٠٢٦",
+        "price": ""
+      },
+      {
+        "id": "c_1786518819328_0_k34k2",
+        "username": "testuser",
+        "name": "10_hours",
+        "code": "HYPER-1120",
+        "cardUsername": "291128070420",
+        "cardPassword": "630784",
+        "duration": "24 ساعة",
+        "dataLimit": "غير محدود",
+        "status": "unused",
+        "downloadUsed": "0 MB",
+        "uploadUsed": "0 MB",
+        "timeLeft": "غير مفعلة",
+        "purchaseDate": "١٢‏/٨‏/٢٠٢٦",
+        "price": ""
+      },
+      {
+        "id": "c_1786518813849_0_e1r3r",
+        "username": "testuser",
+        "name": "24_hours",
+        "code": "HYPER-4649",
+        "cardUsername": "617911771835",
+        "cardPassword": "381430",
+        "duration": "24 ساعة",
+        "dataLimit": "غير محدود",
+        "status": "unused",
+        "downloadUsed": "0 MB",
+        "uploadUsed": "0 MB",
+        "timeLeft": "غير مفعلة",
+        "purchaseDate": "١٢‏/٨‏/٢٠٢٦",
+        "price": ""
+      },
+      {
+        "id": "c_1786518813817_0_pbjya",
+        "username": "testuser",
+        "name": "24_hours",
+        "code": "HYPER-5377",
+        "cardUsername": "378431806230",
+        "cardPassword": "392839",
+        "duration": "24 ساعة",
+        "dataLimit": "غير محدود",
+        "status": "unused",
+        "downloadUsed": "0 MB",
+        "uploadUsed": "0 MB",
+        "timeLeft": "غير مفعلة",
+        "purchaseDate": "١٢‏/٨‏/٢٠٢٦",
+        "price": ""
+      }
+    ],
+    "user_cards:user_rl": [
+      {
+        "id": "card_rl_test_1",
+        "code": "HYPER-8888",
+        "status": "ACTIVE",
+        "duration": "24 ساعة",
+        "activatedBy": "user_rl",
+        "activationTime": "2026-08-12T07:15:00.759Z",
+        "timeLeft": "24 ساعة"
+      }
+    ],
+    "user_cards:111": [
+      {
+        "id": "race_card_999",
+        "code": "RACE-9999",
+        "status": "ACTIVE",
+        "duration": "10 ساعات",
+        "activatedBy": "111",
+        "activationTime": "2026-08-12T08:09:58.444Z",
+        "timeLeft": "10 ساعات"
+      },
+      {
+        "id": "race_card_999",
+        "code": "RACE-9999",
+        "status": "ACTIVE",
+        "duration": "10 ساعات",
+        "activatedBy": "111",
+        "activationTime": "2026-08-12T08:08:49.957Z",
+        "timeLeft": "10 ساعات"
+      },
+      {
+        "id": "race_card_999",
+        "code": "RACE-9999",
+        "status": "ACTIVE",
+        "duration": "10 ساعات",
+        "activatedBy": "111",
+        "activationTime": "2026-08-12T07:55:45.532Z",
+        "timeLeft": "10 ساعات"
+      },
+      {
+        "id": "race_card_999",
+        "code": "RACE-9999",
+        "status": "ACTIVE",
+        "duration": "10 ساعات",
+        "activatedBy": "111",
+        "activationTime": "2026-08-12T07:55:30.580Z",
+        "timeLeft": "10 ساعات"
+      },
+      {
+        "id": "race_card_999",
+        "code": "RACE-9999",
+        "status": "ACTIVE",
+        "duration": "10 ساعات",
+        "activatedBy": "111",
+        "activationTime": "2026-08-12T07:54:44.625Z",
+        "timeLeft": "10 ساعات"
+      },
+      {
+        "id": "race_card_999",
+        "code": "RACE-9999",
+        "status": "ACTIVE",
+        "duration": "10 ساعات",
+        "activatedBy": "111",
+        "activationTime": "2026-08-12T07:37:03.715Z",
+        "timeLeft": "10 ساعات"
+      },
+      {
+        "id": "race_card_999",
+        "code": "RACE-9999",
+        "status": "ACTIVE",
+        "duration": "10 ساعات",
+        "activatedBy": "111",
+        "activationTime": "2026-08-12T07:36:40.479Z",
+        "timeLeft": "10 ساعات"
+      },
+      {
+        "id": "race_card_999",
+        "code": "RACE-9999",
+        "status": "ACTIVE",
+        "duration": "10 ساعات",
+        "activatedBy": "111",
+        "activationTime": "2026-08-12T07:28:51.878Z",
+        "timeLeft": "10 ساعات"
+      },
+      {
+        "id": "race_card_999",
+        "code": "RACE-9999",
+        "status": "ACTIVE",
+        "duration": "10 ساعات",
+        "activatedBy": "111",
+        "activationTime": "2026-08-12T07:28:43.728Z",
+        "timeLeft": "10 ساعات"
+      },
+      {
+        "id": "race_card_001",
+        "code": "RACE-1234",
+        "status": "ACTIVE",
+        "duration": "24 ساعة",
+        "activatedBy": "111",
+        "activationTime": "2026-08-12T07:27:36.673Z",
+        "timeLeft": "24 ساعة"
+      },
+      {
+        "id": "race_card_001",
+        "code": "RACE-1234",
+        "status": "ACTIVE",
+        "duration": "24 ساعة",
+        "activatedBy": "111",
+        "activationTime": "2026-08-12T07:27:28.177Z",
+        "timeLeft": "24 ساعة"
+      }
+    ]
+  },
+  "users": {
+    "111": {
+      "username": "111",
+      "phone": "0598828288",
+      "fullName": "نحنح نتت نتنت",
+      "region": "مخيم الجزيرة",
+      "password": "111",
+      "createdAt": "2026-08-12T06:21:26.813Z",
+      "id": "u_1786515686813_47qd",
+      "firstName": "نحنح",
+      "first_name": "نحنح",
+      "fatherName": "نتت",
+      "father_name": "نتت",
+      "lastName": "نتنت",
+      "last_name": "نتنت",
+      "camp": "مخيم الجزيرة",
+      "registered_at": "2026-08-12T06:21:26.813Z"
+    },
+    "testuser1": {
+      "id": "u_1786467098026_3b2u",
+      "username": "testuser1",
+      "password": "12345",
+      "first_name": "نحنح",
+      "father_name": "نتت",
+      "last_name": "نتنت",
+      "phone": "0590999999",
+      "region": "مخيم الجزيرة",
+      "camp": "مخيم الجزيرة",
+      "registered_at": "2026-08-11T16:51:38.026Z"
+    },
+    "testuser_kv1": {
+      "username": "testuser_kv1",
+      "phone": "0599123456",
+      "fullName": "أحمد محمد علي",
+      "region": "مخيم النصيرات",
+      "password": "Password123!",
+      "createdAt": "2026-08-11T17:01:28.495Z",
+      "id": "u_1786467688495_m4w9",
+      "firstName": "أحمد",
+      "first_name": "أحمد",
+      "fatherName": "محمد",
+      "father_name": "محمد",
+      "lastName": "علي",
+      "last_name": "علي",
+      "camp": "مخيم النصيرات",
+      "registered_at": "2026-08-11T17:01:28.495Z"
+    },
+    "محمد": {
+      "username": "محمد",
+      "phone": "0509999929",
+      "fullName": "محمد علي كلاي",
+      "region": "مخيم الجزيرة",
+      "password": "12345",
+      "createdAt": "2026-08-12T06:32:17.821Z",
+      "id": "u_1786516337821_17rr",
+      "firstName": "محمد",
+      "first_name": "محمد",
+      "fatherName": "علي",
+      "father_name": "علي",
+      "lastName": "كلاي",
+      "last_name": "كلاي",
+      "camp": "مخيم الجزيرة",
+      "registered_at": "2026-08-12T06:32:17.821Z"
+    },
+    "testmsg_1786516457089": {
+      "username": "testmsg_1786516457089",
+      "phone": "0599982175",
+      "fullName": "سعيد حسن أحمد",
+      "region": "مخيم خانيونس",
+      "password": "Password123!",
+      "createdAt": "2026-08-12T06:34:17.204Z",
+      "id": "u_1786516457204_7d5d",
+      "firstName": "سعيد",
+      "first_name": "سعيد",
+      "fatherName": "حسن",
+      "father_name": "حسن",
+      "lastName": "أحمد",
+      "last_name": "أحمد",
+      "camp": "مخيم خانيونس",
+      "registered_at": "2026-08-12T06:34:17.204Z"
+    },
+    "محمدو": {
+      "username": "محمدو",
+      "phone": "0599292929",
+      "fullName": "احمد علي كلاي",
+      "region": "مخيم الجزيرة",
+      "password": "12345",
+      "createdAt": "2026-08-12T06:52:11.731Z",
+      "id": "u_1786517531731_bhg3",
+      "firstName": "احمد",
+      "first_name": "احمد",
+      "fatherName": "علي",
+      "father_name": "علي",
+      "lastName": "كلاي",
+      "last_name": "كلاي",
+      "camp": "مخيم الجزيرة",
+      "registered_at": "2026-08-12T06:52:11.731Z"
+    }
+  },
+  "user_cards": {
+    "111": [
+      {
+        "id": "race_card_999",
+        "code": "RACE-9999",
+        "status": "ACTIVE",
+        "duration": "10 ساعات",
+        "activatedBy": "111",
+        "activationTime": "2026-08-12T08:09:58.444Z",
+        "timeLeft": "10 ساعات"
+      },
+      {
+        "id": "race_card_999",
+        "code": "RACE-9999",
+        "status": "ACTIVE",
+        "duration": "10 ساعات",
+        "activatedBy": "111",
+        "activationTime": "2026-08-12T08:08:49.957Z",
+        "timeLeft": "10 ساعات"
+      },
+      {
+        "id": "race_card_999",
+        "code": "RACE-9999",
+        "status": "ACTIVE",
+        "duration": "10 ساعات",
+        "activatedBy": "111",
+        "activationTime": "2026-08-12T07:55:45.532Z",
+        "timeLeft": "10 ساعات"
+      },
+      {
+        "id": "race_card_999",
+        "code": "RACE-9999",
+        "status": "ACTIVE",
+        "duration": "10 ساعات",
+        "activatedBy": "111",
+        "activationTime": "2026-08-12T07:55:30.580Z",
+        "timeLeft": "10 ساعات"
+      },
+      {
+        "id": "race_card_999",
+        "code": "RACE-9999",
+        "status": "ACTIVE",
+        "duration": "10 ساعات",
+        "activatedBy": "111",
+        "activationTime": "2026-08-12T07:54:44.625Z",
+        "timeLeft": "10 ساعات"
+      },
+      {
+        "id": "race_card_999",
+        "code": "RACE-9999",
+        "status": "ACTIVE",
+        "duration": "10 ساعات",
+        "activatedBy": "111",
+        "activationTime": "2026-08-12T07:37:03.715Z",
+        "timeLeft": "10 ساعات"
+      },
+      {
+        "id": "race_card_999",
+        "code": "RACE-9999",
+        "status": "ACTIVE",
+        "duration": "10 ساعات",
+        "activatedBy": "111",
+        "activationTime": "2026-08-12T07:36:40.479Z",
+        "timeLeft": "10 ساعات"
+      },
+      {
+        "id": "race_card_999",
+        "code": "RACE-9999",
+        "status": "ACTIVE",
+        "duration": "10 ساعات",
+        "activatedBy": "111",
+        "activationTime": "2026-08-12T07:28:51.878Z",
+        "timeLeft": "10 ساعات"
+      },
+      {
+        "id": "race_card_999",
+        "code": "RACE-9999",
+        "status": "ACTIVE",
+        "duration": "10 ساعات",
+        "activatedBy": "111",
+        "activationTime": "2026-08-12T07:28:43.728Z",
+        "timeLeft": "10 ساعات"
+      },
+      {
+        "id": "race_card_001",
+        "code": "RACE-1234",
+        "status": "ACTIVE",
+        "duration": "24 ساعة",
+        "activatedBy": "111",
+        "activationTime": "2026-08-12T07:27:36.673Z",
+        "timeLeft": "24 ساعة"
+      },
+      {
+        "id": "race_card_001",
+        "code": "RACE-1234",
+        "status": "ACTIVE",
+        "duration": "24 ساعة",
+        "activatedBy": "111",
+        "activationTime": "2026-08-12T07:27:28.177Z",
+        "timeLeft": "24 ساعة"
+      }
+    ],
+    "user1": [
+      {
+        "id": "card_atomic_test_999",
+        "code": "HYPER-9999",
+        "status": "ACTIVE",
+        "duration": "24 ساعة",
+        "price": "10 شيكل",
+        "activatedBy": "user1",
+        "activationTime": "2026-08-12T07:11:53.262Z",
+        "timeLeft": "24 ساعة"
+      }
+    ],
+    "testuser": [
+      {
+        "id": "c_1786518896172_0_367od",
+        "username": "testuser",
+        "name": "10_hours",
+        "code": "HYPER-4752",
+        "cardUsername": "908691876183",
+        "cardPassword": "903317",
+        "duration": "24 ساعة",
+        "dataLimit": "غير محدود",
+        "status": "unused",
+        "downloadUsed": "0 MB",
+        "uploadUsed": "0 MB",
+        "timeLeft": "غير مفعلة",
+        "purchaseDate": "١٢‏/٨‏/٢٠٢٦",
+        "price": ""
+      },
+      {
+        "id": "c_1786518882630_0_3ez6u",
+        "username": "testuser",
+        "name": "10_hours",
+        "code": "HYPER-6748",
+        "cardUsername": "798967199305",
+        "cardPassword": "388534",
+        "duration": "24 ساعة",
+        "dataLimit": "غير محدود",
+        "status": "unused",
+        "downloadUsed": "0 MB",
+        "uploadUsed": "0 MB",
+        "timeLeft": "غير مفعلة",
+        "purchaseDate": "١٢‏/٨‏/٢٠٢٦",
+        "price": ""
+      },
+      {
+        "id": "c_1786518882626_0_8f1gy",
+        "username": "testuser",
+        "name": "10_hours",
+        "code": "HYPER-8718",
+        "cardUsername": "724163804981",
+        "cardPassword": "856875",
+        "duration": "24 ساعة",
+        "dataLimit": "غير محدود",
+        "status": "unused",
+        "downloadUsed": "0 MB",
+        "uploadUsed": "0 MB",
+        "timeLeft": "غير مفعلة",
+        "purchaseDate": "١٢‏/٨‏/٢٠٢٦",
+        "price": ""
+      },
+      {
+        "id": "c_1786518879183_0_kqegz",
+        "username": "testuser",
+        "name": "10_hours",
+        "code": "HYPER-7364",
+        "cardUsername": "608741848810",
+        "cardPassword": "667566",
+        "duration": "24 ساعة",
+        "dataLimit": "غير محدود",
+        "status": "unused",
+        "downloadUsed": "0 MB",
+        "uploadUsed": "0 MB",
+        "timeLeft": "غير مفعلة",
+        "purchaseDate": "١٢‏/٨‏/٢٠٢٦",
+        "price": ""
+      },
+      {
+        "id": "c_1786518879015_0_838qi",
+        "username": "testuser",
+        "name": "10_hours",
+        "code": "HYPER-6239",
+        "cardUsername": "548668210770",
+        "cardPassword": "735414",
+        "duration": "24 ساعة",
+        "dataLimit": "غير محدود",
+        "status": "unused",
+        "downloadUsed": "0 MB",
+        "uploadUsed": "0 MB",
+        "timeLeft": "غير مفعلة",
+        "purchaseDate": "١٢‏/٨‏/٢٠٢٦",
+        "price": ""
+      },
+      {
+        "id": "c_1786518874819_0_wltzo",
+        "username": "testuser",
+        "name": "10_hours",
+        "code": "HYPER-2498",
+        "cardUsername": "107769588156",
+        "cardPassword": "302806",
+        "duration": "24 ساعة",
+        "dataLimit": "غير محدود",
+        "status": "unused",
+        "downloadUsed": "0 MB",
+        "uploadUsed": "0 MB",
+        "timeLeft": "غير مفعلة",
+        "purchaseDate": "١٢‏/٨‏/٢٠٢٦",
+        "price": ""
+      },
+      {
+        "id": "c_1786518874815_0_nww41",
+        "username": "testuser",
+        "name": "10_hours",
+        "code": "HYPER-4138",
+        "cardUsername": "240603738765",
+        "cardPassword": "561276",
+        "duration": "24 ساعة",
+        "dataLimit": "غير محدود",
+        "status": "unused",
+        "downloadUsed": "0 MB",
+        "uploadUsed": "0 MB",
+        "timeLeft": "غير مفعلة",
+        "purchaseDate": "١٢‏/٨‏/٢٠٢٦",
+        "price": ""
+      },
+      {
+        "id": "c_1786518863690_0_jjmfr",
+        "username": "testuser",
+        "name": "10_hours",
+        "code": "HYPER-6042",
+        "cardUsername": "321694899285",
+        "cardPassword": "701568",
+        "duration": "24 ساعة",
+        "dataLimit": "غير محدود",
+        "status": "unused",
+        "downloadUsed": "0 MB",
+        "uploadUsed": "0 MB",
+        "timeLeft": "غير مفعلة",
+        "purchaseDate": "١٢‏/٨‏/٢٠٢٦",
+        "price": ""
+      },
+      {
+        "id": "c_1786518863686_0_pzgcy",
+        "username": "testuser",
+        "name": "10_hours",
+        "code": "HYPER-5844",
+        "cardUsername": "808992490063",
+        "cardPassword": "103418",
+        "duration": "24 ساعة",
+        "dataLimit": "غير محدود",
+        "status": "unused",
+        "downloadUsed": "0 MB",
+        "uploadUsed": "0 MB",
+        "timeLeft": "غير مفعلة",
+        "purchaseDate": "١٢‏/٨‏/٢٠٢٦",
+        "price": ""
+      },
+      {
+        "id": "c_1786518847985_0_vs9kw",
+        "username": "testuser",
+        "name": "10_hours",
+        "code": "HYPER-5029",
+        "cardUsername": "314667130738",
+        "cardPassword": "455573",
+        "duration": "24 ساعة",
+        "dataLimit": "غير محدود",
+        "status": "unused",
+        "downloadUsed": "0 MB",
+        "uploadUsed": "0 MB",
+        "timeLeft": "غير مفعلة",
+        "purchaseDate": "١٢‏/٨‏/٢٠٢٦",
+        "price": ""
+      },
+      {
+        "id": "c_1786518847980_0_pzwx0",
+        "username": "testuser",
+        "name": "10_hours",
+        "code": "HYPER-7942",
+        "cardUsername": "931330467780",
+        "cardPassword": "494019",
+        "duration": "24 ساعة",
+        "dataLimit": "غير محدود",
+        "status": "unused",
+        "downloadUsed": "0 MB",
+        "uploadUsed": "0 MB",
+        "timeLeft": "غير مفعلة",
+        "purchaseDate": "١٢‏/٨‏/٢٠٢٦",
+        "price": ""
+      },
+      {
+        "id": "c_1786518837217_0_m82p2",
+        "username": "testuser",
+        "name": "10_hours",
+        "code": "HYPER-4690",
+        "cardUsername": "815716173158",
+        "cardPassword": "758513",
+        "duration": "24 ساعة",
+        "dataLimit": "غير محدود",
+        "status": "unused",
+        "downloadUsed": "0 MB",
+        "uploadUsed": "0 MB",
+        "timeLeft": "غير مفعلة",
+        "purchaseDate": "١٢‏/٨‏/٢٠٢٦",
+        "price": ""
+      },
+      {
+        "id": "c_1786518837213_0_kb4tk",
+        "username": "testuser",
+        "name": "10_hours",
+        "code": "HYPER-4976",
+        "cardUsername": "219810067049",
+        "cardPassword": "472763",
+        "duration": "24 ساعة",
+        "dataLimit": "غير محدود",
+        "status": "unused",
+        "downloadUsed": "0 MB",
+        "uploadUsed": "0 MB",
+        "timeLeft": "غير مفعلة",
+        "purchaseDate": "١٢‏/٨‏/٢٠٢٦",
+        "price": ""
+      },
+      {
+        "id": "c_1786518832590_0_razah",
+        "username": "testuser",
+        "name": "10_hours",
+        "code": "HYPER-6474",
+        "cardUsername": "442521333738",
+        "cardPassword": "829752",
+        "duration": "24 ساعة",
+        "dataLimit": "غير محدود",
+        "status": "unused",
+        "downloadUsed": "0 MB",
+        "uploadUsed": "0 MB",
+        "timeLeft": "غير مفعلة",
+        "purchaseDate": "١٢‏/٨‏/٢٠٢٦",
+        "price": ""
+      },
+      {
+        "id": "c_1786518832586_0_riq16",
+        "username": "testuser",
+        "name": "10_hours",
+        "code": "HYPER-3797",
+        "cardUsername": "307102661464",
+        "cardPassword": "840896",
+        "duration": "24 ساعة",
+        "dataLimit": "غير محدود",
+        "status": "unused",
+        "downloadUsed": "0 MB",
+        "uploadUsed": "0 MB",
+        "timeLeft": "غير مفعلة",
+        "purchaseDate": "١٢‏/٨‏/٢٠٢٦",
+        "price": ""
+      },
+      {
+        "id": "c_1786518819505_0_tyknh",
+        "username": "testuser",
+        "name": "10_hours",
+        "code": "HYPER-7114",
+        "cardUsername": "228989615983",
+        "cardPassword": "899471",
+        "duration": "24 ساعة",
+        "dataLimit": "غير محدود",
+        "status": "unused",
+        "downloadUsed": "0 MB",
+        "uploadUsed": "0 MB",
+        "timeLeft": "غير مفعلة",
+        "purchaseDate": "١٢‏/٨‏/٢٠٢٦",
+        "price": ""
+      },
+      {
+        "id": "c_1786518819328_0_k34k2",
+        "username": "testuser",
+        "name": "10_hours",
+        "code": "HYPER-1120",
+        "cardUsername": "291128070420",
+        "cardPassword": "630784",
+        "duration": "24 ساعة",
+        "dataLimit": "غير محدود",
+        "status": "unused",
+        "downloadUsed": "0 MB",
+        "uploadUsed": "0 MB",
+        "timeLeft": "غير مفعلة",
+        "purchaseDate": "١٢‏/٨‏/٢٠٢٦",
+        "price": ""
+      },
+      {
+        "id": "c_1786518813849_0_e1r3r",
+        "username": "testuser",
+        "name": "24_hours",
+        "code": "HYPER-4649",
+        "cardUsername": "617911771835",
+        "cardPassword": "381430",
+        "duration": "24 ساعة",
+        "dataLimit": "غير محدود",
+        "status": "unused",
+        "downloadUsed": "0 MB",
+        "uploadUsed": "0 MB",
+        "timeLeft": "غير مفعلة",
+        "purchaseDate": "١٢‏/٨‏/٢٠٢٦",
+        "price": ""
+      },
+      {
+        "id": "c_1786518813817_0_pbjya",
+        "username": "testuser",
+        "name": "24_hours",
+        "code": "HYPER-5377",
+        "cardUsername": "378431806230",
+        "cardPassword": "392839",
+        "duration": "24 ساعة",
+        "dataLimit": "غير محدود",
+        "status": "unused",
+        "downloadUsed": "0 MB",
+        "uploadUsed": "0 MB",
+        "timeLeft": "غير مفعلة",
+        "purchaseDate": "١٢‏/٨‏/٢٠٢٦",
+        "price": ""
+      }
+    ],
+    "user_rl": [
+      {
+        "id": "card_rl_test_1",
+        "code": "HYPER-8888",
+        "status": "ACTIVE",
+        "duration": "24 ساعة",
+        "activatedBy": "user_rl",
+        "activationTime": "2026-08-12T07:15:00.759Z",
+        "timeLeft": "24 ساعة"
+      }
+    ]
+  },
+  "sessions": {
+    "cf_token_1786467098026_la0wd0": {
+      "token": "cf_token_1786467098026_la0wd0",
+      "user": {
+        "id": "u_1786467098026_3b2u",
+        "username": "testuser1",
+        "password": "12345",
+        "first_name": "نحنح",
+        "father_name": "نتت",
+        "last_name": "نتنت",
+        "phone": "0590999999",
+        "region": "مخيم الجزيرة",
+        "camp": "مخيم الجزيرة",
+        "registered_at": "2026-08-11T16:51:38.026Z"
+      },
+      "updated_at": "2026-08-11T16:51:38.026Z"
+    },
+    "cf_token_1786467688794_b9wf3y": {
+      "token": "cf_token_1786467688794_b9wf3y",
+      "user": {
+        "username": "testuser_kv1",
+        "phone": "0599123456",
+        "fullName": "أحمد محمد علي",
+        "region": "مخيم النصيرات",
+        "password": "Password123!",
+        "createdAt": "2026-08-11T17:01:28.495Z",
+        "id": "u_1786467688495_m4w9",
+        "firstName": "أحمد",
+        "first_name": "أحمد",
+        "fatherName": "محمد",
+        "father_name": "محمد",
+        "lastName": "علي",
+        "last_name": "علي",
+        "camp": "مخيم النصيرات",
+        "registered_at": "2026-08-11T17:01:28.495Z"
+      },
+      "updated_at": "2026-08-11T17:01:28.794Z"
+    },
+    "cf_token_1786515687145_fev0a0": {
+      "token": "cf_token_1786515687145_fev0a0",
+      "user": {
+        "username": "111",
+        "phone": "0598828288",
+        "fullName": "نحنح نتت نتنت",
+        "region": "مخيم الجزيرة",
+        "password": "111",
+        "createdAt": "2026-08-12T06:21:26.813Z",
+        "id": "u_1786515686813_47qd",
+        "firstName": "نحنح",
+        "first_name": "نحنح",
+        "fatherName": "نتت",
+        "father_name": "نتت",
+        "lastName": "نتنت",
+        "last_name": "نتنت",
+        "camp": "مخيم الجزيرة",
+        "registered_at": "2026-08-12T06:21:26.813Z"
+      },
+      "updated_at": "2026-08-12T06:21:27.145Z"
+    },
+    "cf_token_1786516338086_kuguro": {
+      "token": "cf_token_1786516338086_kuguro",
+      "user": {
+        "username": "محمد",
+        "phone": "0509999929",
+        "fullName": "محمد علي كلاي",
+        "region": "مخيم الجزيرة",
+        "password": "12345",
+        "createdAt": "2026-08-12T06:32:17.821Z",
+        "id": "u_1786516337821_17rr",
+        "firstName": "محمد",
+        "first_name": "محمد",
+        "fatherName": "علي",
+        "father_name": "علي",
+        "lastName": "كلاي",
+        "last_name": "كلاي",
+        "camp": "مخيم الجزيرة",
+        "registered_at": "2026-08-12T06:32:17.821Z"
+      },
+      "updated_at": "2026-08-12T06:32:18.086Z"
+    },
+    "cf_token_1786516457448_dmgh3q": {
+      "token": "cf_token_1786516457448_dmgh3q",
+      "user": {
+        "username": "testmsg_1786516457089",
+        "phone": "0599982175",
+        "fullName": "سعيد حسن أحمد",
+        "region": "مخيم خانيونس",
+        "password": "Password123!",
+        "createdAt": "2026-08-12T06:34:17.204Z",
+        "id": "u_1786516457204_7d5d",
+        "firstName": "سعيد",
+        "first_name": "سعيد",
+        "fatherName": "حسن",
+        "father_name": "حسن",
+        "lastName": "أحمد",
+        "last_name": "أحمد",
+        "camp": "مخيم خانيونس",
+        "registered_at": "2026-08-12T06:34:17.204Z"
+      },
+      "updated_at": "2026-08-12T06:34:17.448Z"
+    },
+    "cf_token_1786517532011_5spdv2": {
+      "token": "cf_token_1786517532011_5spdv2",
+      "user": {
+        "username": "محمدو",
+        "phone": "0599292929",
+        "fullName": "احمد علي كلاي",
+        "region": "مخيم الجزيرة",
+        "password": "12345",
+        "createdAt": "2026-08-12T06:52:11.731Z",
+        "id": "u_1786517531731_bhg3",
+        "firstName": "احمد",
+        "first_name": "احمد",
+        "fatherName": "علي",
+        "father_name": "علي",
+        "lastName": "كلاي",
+        "last_name": "كلاي",
+        "camp": "مخيم الجزيرة",
+        "registered_at": "2026-08-12T06:52:11.731Z"
+      },
+      "updated_at": "2026-08-12T06:52:12.011Z"
+    },
+    "cf_token_1786519648105_k6vo8q": {
+      "token": "cf_token_1786519648105_k6vo8q",
+      "user": {
+        "id": "u_admin",
+        "username": "admin",
+        "phone": "0590000000",
+        "role": "ADMIN",
+        "isAdmin": true,
+        "fullName": "مشرف النظام",
+        "createdAt": "2026-08-12T07:27:28.105Z"
+      },
+      "updated_at": "2026-08-12T07:27:28.105Z"
+    },
+    "cf_token_1786519648121_79lmh2": {
+      "token": "cf_token_1786519648121_79lmh2",
+      "user": {
+        "id": "u_demo_111",
+        "username": "111",
+        "phone": "0590000000",
+        "role": "USER",
+        "fullName": "حساب تجريبي",
+        "firstName": "حساب",
+        "lastName": "تجريبي",
+        "region": "غزة",
+        "camp": "غزة",
+        "createdAt": "2026-08-12T07:27:28.121Z"
+      },
+      "updated_at": "2026-08-12T07:27:28.121Z"
+    },
+    "cf_token_1786519648135_eip8m9": {
+      "token": "cf_token_1786519648135_eip8m9",
+      "user": {
+        "id": "u_demo_111",
+        "username": "111",
+        "phone": "0590000000",
+        "role": "USER",
+        "fullName": "حساب تجريبي",
+        "firstName": "حساب",
+        "lastName": "تجريبي",
+        "region": "غزة",
+        "camp": "غزة",
+        "createdAt": "2026-08-12T07:27:28.135Z"
+      },
+      "updated_at": "2026-08-12T07:27:28.135Z"
+    },
+    "cf_token_1786519656604_ma2bjz": {
+      "token": "cf_token_1786519656604_ma2bjz",
+      "user": {
+        "id": "u_admin",
+        "username": "admin",
+        "phone": "0590000000",
+        "role": "ADMIN",
+        "isAdmin": true,
+        "fullName": "مشرف النظام",
+        "createdAt": "2026-08-12T07:27:36.604Z"
+      },
+      "updated_at": "2026-08-12T07:27:36.604Z"
+    },
+    "cf_token_1786519656628_ajeo67": {
+      "token": "cf_token_1786519656628_ajeo67",
+      "user": {
+        "id": "u_demo_111",
+        "username": "111",
+        "phone": "0590000000",
+        "role": "USER",
+        "fullName": "حساب تجريبي",
+        "firstName": "حساب",
+        "lastName": "تجريبي",
+        "region": "غزة",
+        "camp": "غزة",
+        "createdAt": "2026-08-12T07:27:36.628Z"
+      },
+      "updated_at": "2026-08-12T07:27:36.628Z"
+    },
+    "cf_token_1786519669891_1twt44": {
+      "token": "cf_token_1786519669891_1twt44",
+      "user": {
+        "id": "u_admin",
+        "username": "admin",
+        "phone": "0590000000",
+        "role": "ADMIN",
+        "isAdmin": true,
+        "fullName": "مشرف النظام",
+        "createdAt": "2026-08-12T07:27:49.891Z"
+      },
+      "updated_at": "2026-08-12T07:27:49.891Z"
+    },
+    "cf_token_1786519723317_7od4om": {
+      "token": "cf_token_1786519723317_7od4om",
+      "user": {
+        "id": "u_admin",
+        "username": "admin",
+        "phone": "0590000000",
+        "role": "ADMIN",
+        "isAdmin": true,
+        "fullName": "مشرف النظام",
+        "createdAt": "2026-08-12T07:28:43.316Z"
+      },
+      "updated_at": "2026-08-12T07:28:43.317Z"
+    },
+    "cf_token_1786519723330_yqq20z": {
+      "token": "cf_token_1786519723330_yqq20z",
+      "user": {
+        "id": "u_demo_111",
+        "username": "111",
+        "phone": "0590000000",
+        "role": "USER",
+        "fullName": "حساب تجريبي",
+        "firstName": "حساب",
+        "lastName": "تجريبي",
+        "region": "غزة",
+        "camp": "غزة",
+        "createdAt": "2026-08-12T07:28:43.330Z"
+      },
+      "updated_at": "2026-08-12T07:28:43.330Z"
+    },
+    "cf_token_1786519723346_7zmfwu": {
+      "token": "cf_token_1786519723346_7zmfwu",
+      "user": {
+        "id": "u_demo_111",
+        "username": "111",
+        "phone": "0590000000",
+        "role": "USER",
+        "fullName": "حساب تجريبي",
+        "firstName": "حساب",
+        "lastName": "تجريبي",
+        "region": "غزة",
+        "camp": "غزة",
+        "createdAt": "2026-08-12T07:28:43.346Z"
+      },
+      "updated_at": "2026-08-12T07:28:43.346Z"
+    },
+    "cf_token_1786519731457_vdijn5": {
+      "token": "cf_token_1786519731457_vdijn5",
+      "user": {
+        "id": "u_admin",
+        "username": "admin",
+        "phone": "0590000000",
+        "role": "ADMIN",
+        "isAdmin": true,
+        "fullName": "مشرف النظام",
+        "createdAt": "2026-08-12T07:28:51.457Z"
+      },
+      "updated_at": "2026-08-12T07:28:51.457Z"
+    },
+    "cf_token_1786519731474_2sfzjq": {
+      "token": "cf_token_1786519731474_2sfzjq",
+      "user": {
+        "id": "u_demo_111",
+        "username": "111",
+        "phone": "0590000000",
+        "role": "USER",
+        "fullName": "حساب تجريبي",
+        "firstName": "حساب",
+        "lastName": "تجريبي",
+        "region": "غزة",
+        "camp": "غزة",
+        "createdAt": "2026-08-12T07:28:51.474Z"
+      },
+      "updated_at": "2026-08-12T07:28:51.474Z"
+    },
+    "cf_token_1786519731488_ajyzqs": {
+      "token": "cf_token_1786519731488_ajyzqs",
+      "user": {
+        "id": "u_demo_111",
+        "username": "111",
+        "phone": "0590000000",
+        "role": "USER",
+        "fullName": "حساب تجريبي",
+        "firstName": "حساب",
+        "lastName": "تجريبي",
+        "region": "غزة",
+        "camp": "غزة",
+        "createdAt": "2026-08-12T07:28:51.488Z"
+      },
+      "updated_at": "2026-08-12T07:28:51.488Z"
+    },
+    "cf_token_1786520200048_ocs9gw": {
+      "token": "cf_token_1786520200048_ocs9gw",
+      "user": {
+        "id": "u_admin",
+        "username": "admin",
+        "phone": "0590000000",
+        "role": "ADMIN",
+        "isAdmin": true,
+        "fullName": "مشرف النظام",
+        "createdAt": "2026-08-12T07:36:40.048Z"
+      },
+      "updated_at": "2026-08-12T07:36:40.048Z"
+    },
+    "cf_token_1786520200070_p5cp9v": {
+      "token": "cf_token_1786520200070_p5cp9v",
+      "user": {
+        "id": "u_demo_111",
+        "username": "111",
+        "phone": "0590000000",
+        "role": "USER",
+        "fullName": "حساب تجريبي",
+        "firstName": "حساب",
+        "lastName": "تجريبي",
+        "region": "غزة",
+        "camp": "غزة",
+        "createdAt": "2026-08-12T07:36:40.070Z"
+      },
+      "updated_at": "2026-08-12T07:36:40.070Z"
+    },
+    "cf_token_1786520200418_oa7p2r": {
+      "token": "cf_token_1786520200418_oa7p2r",
+      "user": {
+        "id": "u_demo_111",
+        "username": "111",
+        "phone": "0590000000",
+        "role": "USER",
+        "fullName": "حساب تجريبي",
+        "firstName": "حساب",
+        "lastName": "تجريبي",
+        "region": "غزة",
+        "camp": "غزة",
+        "createdAt": "2026-08-12T07:36:40.418Z"
+      },
+      "updated_at": "2026-08-12T07:36:40.418Z"
+    },
+    "cf_token_1786520223275_ba0lnm": {
+      "token": "cf_token_1786520223275_ba0lnm",
+      "user": {
+        "id": "u_admin",
+        "username": "admin",
+        "phone": "0590000000",
+        "role": "ADMIN",
+        "isAdmin": true,
+        "fullName": "مشرف النظام",
+        "createdAt": "2026-08-12T07:37:03.274Z"
+      },
+      "updated_at": "2026-08-12T07:37:03.275Z"
+    },
+    "cf_token_1786520223293_4ziqw2": {
+      "token": "cf_token_1786520223293_4ziqw2",
+      "user": {
+        "id": "u_demo_111",
+        "username": "111",
+        "phone": "0590000000",
+        "role": "USER",
+        "fullName": "حساب تجريبي",
+        "firstName": "حساب",
+        "lastName": "تجريبي",
+        "region": "غزة",
+        "camp": "غزة",
+        "createdAt": "2026-08-12T07:37:03.293Z"
+      },
+      "updated_at": "2026-08-12T07:37:03.293Z"
+    },
+    "cf_token_1786520223316_9ranca": {
+      "token": "cf_token_1786520223316_9ranca",
+      "user": {
+        "id": "u_demo_111",
+        "username": "111",
+        "phone": "0590000000",
+        "role": "USER",
+        "fullName": "حساب تجريبي",
+        "firstName": "حساب",
+        "lastName": "تجريبي",
+        "region": "غزة",
+        "camp": "غزة",
+        "createdAt": "2026-08-12T07:37:03.316Z"
+      },
+      "updated_at": "2026-08-12T07:37:03.317Z"
+    },
+    "cf_token_1786521284188_yqjmsc": {
+      "token": "cf_token_1786521284188_yqjmsc",
+      "user": {
+        "id": "u_admin",
+        "username": "admin",
+        "phone": "0590000000",
+        "role": "ADMIN",
+        "isAdmin": true,
+        "fullName": "مشرف النظام",
+        "createdAt": "2026-08-12T07:54:44.188Z"
+      },
+      "updated_at": "2026-08-12T07:54:44.188Z"
+    },
+    "cf_token_1786521284204_1o0mxz": {
+      "token": "cf_token_1786521284204_1o0mxz",
+      "user": {
+        "id": "u_demo_111",
+        "username": "111",
+        "phone": "0590000000",
+        "role": "USER",
+        "fullName": "حساب تجريبي",
+        "firstName": "حساب",
+        "lastName": "تجريبي",
+        "region": "غزة",
+        "camp": "غزة",
+        "createdAt": "2026-08-12T07:54:44.204Z"
+      },
+      "updated_at": "2026-08-12T07:54:44.204Z"
+    },
+    "cf_token_1786521284558_yjy5ep": {
+      "token": "cf_token_1786521284558_yjy5ep",
+      "user": {
+        "id": "u_demo_111",
+        "username": "111",
+        "phone": "0590000000",
+        "role": "USER",
+        "fullName": "حساب تجريبي",
+        "firstName": "حساب",
+        "lastName": "تجريبي",
+        "region": "غزة",
+        "camp": "غزة",
+        "createdAt": "2026-08-12T07:54:44.558Z"
+      },
+      "updated_at": "2026-08-12T07:54:44.558Z"
+    },
+    "cf_token_1786521330252_zav9m1": {
+      "token": "cf_token_1786521330252_zav9m1",
+      "user": {
+        "id": "u_admin",
+        "username": "admin",
+        "phone": "0590000000",
+        "role": "ADMIN",
+        "isAdmin": true,
+        "fullName": "مشرف النظام",
+        "createdAt": "2026-08-12T07:55:30.251Z"
+      },
+      "updated_at": "2026-08-12T07:55:30.252Z"
+    },
+    "cf_token_1786521330270_7cl75e": {
+      "token": "cf_token_1786521330270_7cl75e",
+      "user": {
+        "id": "u_demo_111",
+        "username": "111",
+        "phone": "0590000000",
+        "role": "USER",
+        "fullName": "حساب تجريبي",
+        "firstName": "حساب",
+        "lastName": "تجريبي",
+        "region": "غزة",
+        "camp": "غزة",
+        "createdAt": "2026-08-12T07:55:30.270Z"
+      },
+      "updated_at": "2026-08-12T07:55:30.270Z"
+    },
+    "cf_token_1786521330501_oax1ms": {
+      "token": "cf_token_1786521330501_oax1ms",
+      "user": {
+        "id": "u_demo_111",
+        "username": "111",
+        "phone": "0590000000",
+        "role": "USER",
+        "fullName": "حساب تجريبي",
+        "firstName": "حساب",
+        "lastName": "تجريبي",
+        "region": "غزة",
+        "camp": "غزة",
+        "createdAt": "2026-08-12T07:55:30.501Z"
+      },
+      "updated_at": "2026-08-12T07:55:30.501Z"
+    },
+    "cf_token_1786521345455_8eddxx": {
+      "token": "cf_token_1786521345455_8eddxx",
+      "user": {
+        "id": "u_admin",
+        "username": "admin",
+        "phone": "0590000000",
+        "role": "ADMIN",
+        "isAdmin": true,
+        "fullName": "مشرف النظام",
+        "createdAt": "2026-08-12T07:55:45.455Z"
+      },
+      "updated_at": "2026-08-12T07:55:45.456Z"
+    },
+    "cf_token_1786521345471_5uiwo4": {
+      "token": "cf_token_1786521345471_5uiwo4",
+      "user": {
+        "id": "u_demo_111",
+        "username": "111",
+        "phone": "0590000000",
+        "role": "USER",
+        "fullName": "حساب تجريبي",
+        "firstName": "حساب",
+        "lastName": "تجريبي",
+        "region": "غزة",
+        "camp": "غزة",
+        "createdAt": "2026-08-12T07:55:45.471Z"
+      },
+      "updated_at": "2026-08-12T07:55:45.471Z"
+    },
+    "cf_token_1786521345483_v4hgp1": {
+      "token": "cf_token_1786521345483_v4hgp1",
+      "user": {
+        "id": "u_demo_111",
+        "username": "111",
+        "phone": "0590000000",
+        "role": "USER",
+        "fullName": "حساب تجريبي",
+        "firstName": "حساب",
+        "lastName": "تجريبي",
+        "region": "غزة",
+        "camp": "غزة",
+        "createdAt": "2026-08-12T07:55:45.483Z"
+      },
+      "updated_at": "2026-08-12T07:55:45.483Z"
+    },
+    "cf_token_1786522129870_hr8s7d": {
+      "token": "cf_token_1786522129870_hr8s7d",
+      "user": {
+        "id": "u_admin",
+        "username": "admin",
+        "phone": "0590000000",
+        "role": "ADMIN",
+        "isAdmin": true,
+        "fullName": "مشرف النظام",
+        "createdAt": "2026-08-12T08:08:49.870Z"
+      },
+      "updated_at": "2026-08-12T08:08:49.870Z"
+    },
+    "cf_token_1786522129887_fk3te2": {
+      "token": "cf_token_1786522129887_fk3te2",
+      "user": {
+        "id": "u_demo_111",
+        "username": "111",
+        "phone": "0590000000",
+        "role": "USER",
+        "fullName": "حساب تجريبي",
+        "firstName": "حساب",
+        "lastName": "تجريبي",
+        "region": "غزة",
+        "camp": "غزة",
+        "createdAt": "2026-08-12T08:08:49.887Z"
+      },
+      "updated_at": "2026-08-12T08:08:49.887Z"
+    },
+    "cf_token_1786522129903_8pe8k5": {
+      "token": "cf_token_1786522129903_8pe8k5",
+      "user": {
+        "id": "u_demo_111",
+        "username": "111",
+        "phone": "0590000000",
+        "role": "USER",
+        "fullName": "حساب تجريبي",
+        "firstName": "حساب",
+        "lastName": "تجريبي",
+        "region": "غزة",
+        "camp": "غزة",
+        "createdAt": "2026-08-12T08:08:49.903Z"
+      },
+      "updated_at": "2026-08-12T08:08:49.903Z"
+    },
+    "cf_token_1786522198378_fq6c8d": {
+      "token": "cf_token_1786522198378_fq6c8d",
+      "user": {
+        "id": "u_admin",
+        "username": "admin",
+        "phone": "0590000000",
+        "role": "ADMIN",
+        "isAdmin": true,
+        "fullName": "مشرف النظام",
+        "createdAt": "2026-08-12T08:09:58.377Z"
+      },
+      "updated_at": "2026-08-12T08:09:58.378Z"
+    },
+    "cf_token_1786522198393_lbugo8": {
+      "token": "cf_token_1786522198393_lbugo8",
+      "user": {
+        "id": "u_demo_111",
+        "username": "111",
+        "phone": "0590000000",
+        "role": "USER",
+        "fullName": "حساب تجريبي",
+        "firstName": "حساب",
+        "lastName": "تجريبي",
+        "region": "غزة",
+        "camp": "غزة",
+        "createdAt": "2026-08-12T08:09:58.393Z"
+      },
+      "updated_at": "2026-08-12T08:09:58.393Z"
+    },
+    "cf_token_1786522198408_1kifh6": {
+      "token": "cf_token_1786522198408_1kifh6",
+      "user": {
+        "id": "u_demo_111",
+        "username": "111",
+        "phone": "0590000000",
+        "role": "USER",
+        "fullName": "حساب تجريبي",
+        "firstName": "حساب",
+        "lastName": "تجريبي",
+        "region": "غزة",
+        "camp": "غزة",
+        "createdAt": "2026-08-12T08:09:58.408Z"
+      },
+      "updated_at": "2026-08-12T08:09:58.408Z"
+    },
+    "cf_token_1786524539245_tyvqpg": {
+      "token": "cf_token_1786524539245_tyvqpg",
+      "user": {
+        "id": "u_demo_111",
+        "username": "111",
+        "phone": "0590000000",
+        "role": "USER",
+        "fullName": "حساب تجريبي",
+        "firstName": "حساب",
+        "lastName": "تجريبي",
+        "region": "غزة",
+        "camp": "غزة",
+        "createdAt": "2026-08-12T08:48:59.245Z"
+      },
+      "updated_at": "2026-08-12T08:48:59.245Z"
+    },
+    "cf_token_1786524546054_4hwbt1": {
+      "token": "cf_token_1786524546054_4hwbt1",
+      "user": {
+        "id": "u_demo_111",
+        "username": "111",
+        "phone": "0590000000",
+        "role": "USER",
+        "fullName": "حساب تجريبي",
+        "firstName": "حساب",
+        "lastName": "تجريبي",
+        "region": "غزة",
+        "camp": "غزة",
+        "createdAt": "2026-08-12T08:49:06.054Z"
+      },
+      "updated_at": "2026-08-12T08:49:06.054Z"
+    }
+  },
+  "stock": {
+    "10_hours": [
+      {
+        "id": "race_card_001",
+        "code": "RACE-1234",
+        "status": "AVAILABLE",
+        "duration": "24 ساعة"
+      }
+    ],
+    "24_hours": []
+  },
+  "metadata": {
+    "created_at": "2026-08-11T16:50:09.106Z"
+  }
+}

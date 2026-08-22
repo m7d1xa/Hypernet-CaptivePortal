@@ -317,7 +317,7 @@ export default {
         if (targetToken) {
           session = await db
             .prepare(`
-              SELECT s.*, u.username, u.full_name, u.phone, u.role, u.region, u.camp 
+              SELECT s.*, u.username, u.full_name, u.phone, u.role, u.region 
               FROM sessions s
               LEFT JOIN users u ON u.id = s.user_id
               WHERE s.id = ? AND (s.expires_at IS NULL OR s.expires_at > datetime('now'))
@@ -329,7 +329,7 @@ export default {
         if (!session && targetId) {
           session = await db
             .prepare(`
-              SELECT s.*, u.username, u.full_name, u.phone, u.role, u.region, u.camp 
+              SELECT s.*, u.username, u.full_name, u.phone, u.role, u.region 
               FROM sessions s
               JOIN users u ON u.id = s.user_id
               WHERE (u.id = ? OR LOWER(u.username) = LOWER(?))
@@ -352,8 +352,8 @@ export default {
               fullName: session.full_name,
               phone: session.phone,
               role: session.role || (session.username === "admin" ? "admin" : "customer"),
-              region: session.region,
-              camp: session.camp
+              region: session.region || "",
+              camp: session.region || ""
             }
           });
         }
